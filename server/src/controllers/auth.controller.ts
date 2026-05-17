@@ -31,10 +31,10 @@ export class AuthController {
       if (!user) {
         return res.status(404).json({ success: false, error: 'User not found' });
       }
-      
+
       const userObj = user.toObject();
       delete userObj.password;
-      
+
       res.json({ success: true, data: userObj });
     } catch (error: any) {
       res.status(500).json({ success: false, error: 'Server Error' });
@@ -70,10 +70,10 @@ export class AuthController {
       if (!code) {
         return res.redirect(`${clientUrl}/login?error=NoCodeProvided`);
       }
-      
+
       // Exchange code for token and user
       const result = await authService.googleCallback(code);
-      
+
       // Redirect the user back to the React frontend with the token securely in the URL query string
       res.redirect(`${clientUrl}/oauth-callback?token=${result.token}`);
     } catch (error: any) {

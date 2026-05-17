@@ -22,7 +22,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 export function useToastContext() {
   const context = useContext(ToastContext);
   if (!context) {
-    throw new Error('useToastContext must be used within ToastProvider');
+    console.warn('ToastContext was accessed outside of ToastProvider. Actions will fall back gracefully.');
+    return {
+      addToast: (message: string, type: any = 'info') => {
+        console.log(`[Toast Fallback - ${type}]: ${message}`);
+      }
+    };
   }
   return context;
 }

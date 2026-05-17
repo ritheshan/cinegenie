@@ -3,7 +3,6 @@ import { discoverController } from '../controllers/discover.controller';
 import { protect } from '../middleware/auth.middleware';
 
 const router = Router();
-router.use(protect);
 
 const d = discoverController;
 
