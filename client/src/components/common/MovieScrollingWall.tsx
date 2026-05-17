@@ -25,7 +25,7 @@ interface Ball {
   loaded: boolean;
 }
 
-export default function MovieScrollingWall() {
+export default function MovieScrollingWall({ children }: { children?: React.ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef<{ x: number | null; y: number | null }>({ x: null, y: null });
@@ -293,9 +293,10 @@ export default function MovieScrollingWall() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full h-full overflow-hidden select-none cursor-default bg-slate-950"
+      className="relative w-full min-h-screen overflow-hidden select-none cursor-default bg-slate-950 flex items-center justify-center"
     >
       <canvas ref={canvasRef} className="absolute inset-0 block w-full h-full" />
+      {children}
     </div>
   );
 }

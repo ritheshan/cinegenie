@@ -25,21 +25,17 @@ export default function AuthPage({ mode }: AuthPageProps) {
   const { addToast } = useToastContext();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  // Form states
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Clear form errors when mode changes
   useEffect(() => {
     setError('');
   }, [mode]);
 
-  // Read URL query errors (e.g. from Google OAuth)
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const err = searchParams.get('error');
@@ -65,7 +61,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
         addToast(`Welcome back, ${response.user.name}!`, 'success');
         navigate('/dashboard');
       } else {
-        const response = await authApi.register({ name, username, email, password });
+        const response = await authApi.register({ name, username, password });
         setAuth(response.user, response.token);
         addToast(`Account created successfully! Welcome, ${response.user.name}!`, 'success');
         navigate('/dashboard');
@@ -101,32 +97,32 @@ export default function AuthPage({ mode }: AuthPageProps) {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-950 text-slate-100 overflow-hidden relative">
-      {/* Form Panel */}
+    <MovieScrollingWall>
       <motion.div
-        layout="position"
-        transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-        className={`w-full lg:w-[45%] xl:w-[40%] flex flex-col justify-center px-4 sm:px-6 py-10 z-20 bg-transparent ${isLogin ? 'order-1' : 'order-2'
-          }`}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+        className="w-full max-w-md px-4 sm:px-6 py-10 z-10 bg-transparent"
       >
-        <div className="max-w-md w-full mx-auto bg-slate-900/40 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6)]">
+        <div className="max-w-md w-full mx-auto bg-transparent border border-cine-border/40 backdrop-blur-[3px] p-8 sm:p-10 rounded shadow-2xl relative">
           {/* Logo */}
-          <div className="flex items-center gap-2 mb-8 justify-center lg:justify-start">
-            <span className="text-3xl">🎥</span>
-            <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
+          <div className="flex items-center gap-2 mb-8 justify-center">
+            <span className="text-xl">🎥</span>
+            <span className="text-lg font-bold uppercase tracking-[0.25em] text-cine-text-primary">
               CineGenie
             </span>
           </div>
 
           {/* Heading */}
-          <div className="mb-8 text-center lg:text-left">
-            <h2 className="text-3xl font-extrabold text-white tracking-tight">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
+          <div className="mb-8 text-center">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cine-accent mb-2">Gate Pass</p>
+            <h2 className="text-2xl font-bold uppercase font-heading tracking-wide text-cine-text-primary">
+              {isLogin ? 'Welcome Back' : 'Create Profile'}
             </h2>
-            <p className="text-slate-400 mt-2 text-sm">
+            <p className="text-xs text-cine-text-secondary mt-1 font-semibold">
               {isLogin
-                ? 'Sign in to talk about your favorite movies and tv shows'
-                : 'Join the premier cinema exploration and speech AI platform'}
+                ? 'Sign in to critique your library with speech AI'
+                : 'Join the premier global cinephile logging community'}
             </p>
           </div>
 
@@ -134,7 +130,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl mb-6 text-sm flex items-center gap-2"
+              className="bg-red-950/20 border border-red-900/40 text-red-400 p-4 rounded text-xs uppercase font-bold tracking-wider mb-6 flex items-center gap-2"
             >
               ⚠️ {error}
             </motion.div>
@@ -144,7 +140,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-cine-text-muted mb-2">
                   Full Name
                 </label>
                 <input
@@ -152,14 +148,14 @@ export default function AuthPage({ mode }: AuthPageProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
-                  className="w-full px-4 py-3.5 bg-slate-850 border border-slate-700/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all text-slate-100 text-sm font-medium"
+                  className="w-full px-4 py-2.5 bg-cine-bg/50 border border-cine-border/60 rounded focus:outline-none focus:border-cine-accent text-cine-text-primary transition-all text-xs font-medium"
                   required
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-cine-text-muted mb-2">
                 Username
               </label>
               <input
@@ -167,29 +163,15 @@ export default function AuthPage({ mode }: AuthPageProps) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="cinephile_99"
-                className="w-full px-4 py-3.5 bg-slate-850 border border-slate-700/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all text-slate-100 text-sm font-medium"
+                className="w-full px-4 py-2.5 bg-cine-bg/50 border border-cine-border/60 rounded focus:outline-none focus:border-cine-accent text-cine-text-primary transition-all text-xs font-medium"
                 required
               />
             </div>
 
-            {!isLogin && (
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                  Gmail Address
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@gmail.com"
-                  className="w-full px-4 py-3.5 bg-slate-850 border border-slate-700/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all text-slate-100 text-sm font-medium"
-                  required
-                />
-              </div>
-            )}
+
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-cine-text-muted mb-2">
                 Password
               </label>
               <input
@@ -197,7 +179,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3.5 bg-slate-850 border border-slate-700/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 transition-all text-slate-100 text-sm font-medium"
+                className="w-full px-4 py-2.5 bg-cine-bg/50 border border-cine-border/60 rounded focus:outline-none focus:border-cine-accent text-cine-text-primary transition-all text-xs font-medium"
                 required
                 minLength={isLogin ? 1 : 6}
               />
@@ -206,52 +188,45 @@ export default function AuthPage({ mode }: AuthPageProps) {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-4 text-white font-bold rounded-xl transition-all shadow-lg transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 ${isLogin
-                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-500/10'
-                : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-500/10'
-                }`}
+              className="w-full py-3.5 bg-cine-accent text-cine-bg font-bold uppercase tracking-wider text-xs rounded transition-all hover:opacity-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-3.5 h-3.5 border border-cine-bg border-t-transparent rounded-full animate-spin" />
               ) : isLogin ? (
                 'Sign In'
               ) : (
-                'Register Account'
+                'Create Profile'
               )}
             </button>
           </form>
 
-          {isLogin && (
-            <>
-              <div className="my-6 flex items-center justify-center space-x-2">
-                <span className="h-px bg-slate-800 flex-1"></span>
-                <span className="text-slate-500 text-xs font-bold tracking-wider uppercase">OR</span>
-                <span className="h-px bg-slate-800 flex-1"></span>
-              </div>
+          <div className="my-6 flex items-center justify-center space-x-2">
+            <span className="h-px bg-cine-border/50 flex-1"></span>
+            <span className="text-cine-text-muted text-[9px] font-bold tracking-widest uppercase">OR</span>
+            <span className="h-px bg-cine-border/50 flex-1"></span>
+          </div>
 
-              <button
-                onClick={handleGoogleLogin}
-                className="w-full bg-slate-800/80 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl flex items-center justify-center transition-all border border-slate-700/85 hover:border-slate-600 text-sm gap-3"
-              >
-                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-                Continue with Google
-              </button>
-            </>
-          )}
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full bg-cine-bg/50 hover:bg-cine-card/75 text-cine-text-primary font-bold uppercase tracking-wider py-3 rounded flex items-center justify-center transition-all border border-cine-border/60 hover:border-cine-accent text-[10px] gap-3"
+          >
+            <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+            Continue with Google
+          </button>
 
           {/* Toggle Button */}
-          <p className="mt-8 text-center text-slate-400 text-sm font-medium">
+          <p className="mt-8 text-center text-cine-text-secondary text-xs font-semibold">
             {isLogin ? (
               <>
                 New to CineGenie?{' '}
-                <Link to="/register" className="text-cyan-400 hover:text-cyan-300 font-bold transition-colors">
-                  Create an account
+                <Link to="/register" className="text-cine-accent hover:underline font-bold transition-all">
+                  Create profile
                 </Link>
               </>
             ) : (
               <>
-                Already have an account?{' '}
-                <Link to="/login" className="text-purple-400 hover:text-purple-300 font-bold transition-colors">
+                Already have a profile?{' '}
+                <Link to="/login" className="text-cine-accent hover:underline font-bold transition-all">
                   Sign in instead
                 </Link>
               </>
@@ -259,16 +234,6 @@ export default function AuthPage({ mode }: AuthPageProps) {
           </p>
         </div>
       </motion.div>
-
-      {/* Wall Panel */}
-      <motion.div
-        layout="position"
-        transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-        className={`hidden lg:block lg:w-[55%] xl:w-[60%] h-screen relative overflow-hidden ${isLogin ? 'order-2' : 'order-1'
-          }`}
-      >
-        <MovieScrollingWall />
-      </motion.div>
-    </div>
+    </MovieScrollingWall>
   );
 }

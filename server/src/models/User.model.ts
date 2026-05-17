@@ -6,7 +6,7 @@ export interface IUserDocument extends Omit<IUser, '_id'>, Document {}
 const userSchema = new Schema(
   {
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, unique: true, sparse: true },
     username: { type: String, unique: true, sparse: true },
     password: { type: String },
     avatar: { type: String },

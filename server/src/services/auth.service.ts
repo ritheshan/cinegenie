@@ -6,9 +6,13 @@ import { AuthResponse } from '../interfaces/auth.interface';
 
 export class AuthService {
   async register(data: RegisterInput): Promise<AuthResponse> {
-    const existingEmail = await userRepository.findByEmail(data.email);
-    if (existingEmail) {
-      throw new Error('User with this email already exists');
+    const email = data.email && data.email.trim() !== '' ? data.email.trim() : undefined;
+
+    if (email) {
+      const existingEmail = await userRepository.findByEmail(email);
+      if (existingEmail) {
+        throw new Error('User with this email already exists');
+      }
     }
 
     const existingUsername = await userRepository.findByUsername(data.username);
@@ -20,7 +24,7 @@ export class AuthService {
     
     const user = await userRepository.create({
       name: data.name,
-      email: data.email,
+      email,
       username: data.username,
       password: hashedPassword,
     });
