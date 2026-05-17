@@ -14,6 +14,7 @@ import leaderboardRoutes from './routes/leaderboard.routes';
 
 const app: Application = express();
 
+
 // Middleware
 app.use(express.json());
 app.use(cors());
