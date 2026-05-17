@@ -1,3 +1,5 @@
+import { X, SpellCheck, Lightbulb, Sparkles } from 'lucide-react';
+
 interface AnalysisResultProps {
   analysis: {
     grammarScore: number;
@@ -16,89 +18,94 @@ interface AnalysisResultProps {
 export default function AnalysisResult({ analysis, onSave, onClose, isSaving }: AnalysisResultProps) {
   const ScoreCircle = ({ label, score }: { label: string; score: number }) => (
     <div className="flex flex-col items-center">
-      <div className="w-16 h-16 rounded-full border-4 border-purple-500 flex items-center justify-center text-xl font-bold mb-2 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+      <div className="w-14 h-14 rounded-full border-2 border-cine-accent flex items-center justify-center text-base font-bold mb-2 text-cine-accent">
         {score}
       </div>
-      <span className="text-xs text-slate-400 uppercase tracking-wider">{label}</span>
+      <span className="text-[9px] font-bold text-cine-text-secondary uppercase tracking-widest">{label}</span>
     </div>
   );
 
   return (
-    <div className="fixed inset-0 bg-slate-900/95 flex justify-center items-center z-50 p-4 overflow-y-auto">
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-8 max-w-4xl w-full shadow-2xl relative my-8">
+    <div className="fixed inset-0 bg-cine-bg/95 flex justify-center items-center z-50 p-4 overflow-y-auto backdrop-blur-sm">
+      <div className="bg-cine-surface border border-cine-border rounded p-8 max-w-4xl w-full relative shadow-2xl my-8">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white"
+          className="absolute top-4 right-4 text-cine-text-muted hover:text-cine-text-primary"
         >
-          ✕
+          <X className="w-4 h-4 stroke-[2]" />
         </button>
 
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">AI Communication Analysis</h2>
-          <p className="text-slate-400">Here is how you sounded talking about the movie!</p>
+        <div className="text-center mb-8 border-b border-cine-border pb-6">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cine-accent mb-2">Speech Evaluation</p>
+          <h2 className="text-xl font-bold uppercase tracking-wider text-cine-text-primary font-heading">AI Editorial Analysis</h2>
+          <p className="text-xs text-cine-text-secondary mt-1 font-semibold">Assessment of your vocal review journal session</p>
         </div>
 
-        {/* Scores */}
-        <div className="flex justify-center gap-8 md:gap-16 mb-12">
+        {/* Dynamic Score Shelf */}
+        <div className="flex justify-center gap-8 md:gap-16 mb-10">
           <ScoreCircle label="Grammar" score={analysis.grammarScore} />
           <ScoreCircle label="Fluency" score={analysis.fluencyScore} />
-          <ScoreCircle label="Vocab" score={analysis.vocabularyScore} />
+          <ScoreCircle label="Vocabulary" score={analysis.vocabularyScore} />
           <ScoreCircle label="Confidence" score={analysis.confidenceScore} />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
+        {/* Feedback Cards */}
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div className="space-y-6">
-            <div className="bg-red-500/10 border border-red-500/20 p-6 rounded-lg">
-              <h3 className="text-red-400 font-bold mb-4 flex items-center gap-2">
-                <span>⚠️</span> Grammar Mistakes
+            <div className="bg-cine-bg border border-cine-border p-6 rounded text-left">
+              <h3 className="text-red-400 text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                <SpellCheck className="w-4 h-4 text-red-400 stroke-[1.75]" /> Grammar Observations
               </h3>
-              <ul className="list-disc list-inside text-slate-300 space-y-2 text-sm">
+              <ul className="list-disc list-inside text-xs text-cine-text-secondary space-y-2.5 font-semibold">
                 {analysis.mistakes.map((m, i) => <li key={i}>{m}</li>)}
-                {analysis.mistakes.length === 0 && <li>Perfect! No mistakes found.</li>}
+                {analysis.mistakes.length === 0 && <li>Excellent grammar. No prominent issues identified.</li>}
               </ul>
             </div>
 
-            <div className="bg-cyan-500/10 border border-cyan-500/20 p-6 rounded-lg">
-              <h3 className="text-cyan-400 font-bold mb-4 flex items-center gap-2">
-                <span>💡</span> Tips to Improve
+            <div className="bg-cine-bg border border-cine-border p-6 rounded text-left">
+              <h3 className="text-cine-accent text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Lightbulb className="w-4 h-4 text-cine-accent stroke-[1.75]" /> Stylistic Recommendations
               </h3>
-              <ul className="list-disc list-inside text-slate-300 space-y-2 text-sm">
+              <ul className="list-disc list-inside text-xs text-cine-text-secondary space-y-2.5 font-semibold">
                 {analysis.suggestions.map((s, i) => <li key={i}>{s}</li>)}
               </ul>
             </div>
           </div>
 
-          <div className="bg-purple-500/10 border border-purple-500/20 p-6 rounded-lg flex flex-col">
-            <h3 className="text-purple-400 font-bold mb-4 flex items-center gap-2">
-              <span>✨</span> Native-Sounding Polish
-            </h3>
-            <p className="text-slate-300 text-sm leading-relaxed italic border-l-4 border-purple-500 pl-4 py-2">
-              "{analysis.improvedVersion}"
-            </p>
+          <div className="bg-cine-bg border border-cine-border p-6 rounded flex flex-col justify-between text-left">
+            <div>
+              <h3 className="text-cine-accent text-xs font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-cine-accent stroke-[1.75]" /> Polished Adaptation
+              </h3>
+              <p className="text-xs text-cine-text-secondary leading-relaxed italic border-l border-cine-accent pl-4 py-2 font-medium">
+                "{analysis.improvedVersion}"
+              </p>
+            </div>
+            <p className="text-[9px] uppercase tracking-wider text-cine-text-muted mt-6 font-bold">Recommended standard phrasing for natural conversational flow</p>
           </div>
         </div>
 
-        <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-slate-700">
+        <div className="flex justify-end gap-3 border-t border-cine-border pt-6 mt-8">
           {onSave ? (
             <>
               <button 
                 onClick={onClose}
-                className="px-6 py-3 rounded text-slate-300 hover:bg-slate-700 transition-colors font-medium"
+                className="px-5 py-2.5 rounded text-[10px] uppercase font-bold tracking-wider text-cine-text-secondary hover:text-cine-text-primary transition-colors bg-cine-bg border border-cine-border"
               >
                 Discard
               </button>
               <button 
                 onClick={onSave}
                 disabled={isSaving}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-3 rounded-lg shadow-lg shadow-purple-500/30 transition-all flex items-center gap-2"
+                className="bg-cine-accent hover:bg-opacity-95 text-cine-bg text-[10px] uppercase font-bold tracking-wider px-6 py-2.5 rounded transition-colors disabled:opacity-50"
               >
-                {isSaving ? 'Saving...' : 'Save Entry to Journal'}
+                {isSaving ? 'Saving...' : 'Save to Journal'}
               </button>
             </>
           ) : (
             <button 
               onClick={onClose}
-              className="bg-slate-700 hover:bg-slate-600 text-white font-bold px-8 py-3 rounded-lg transition-all"
+              className="bg-cine-accent hover:bg-opacity-95 text-cine-bg text-[10px] uppercase font-bold tracking-wider px-6 py-2.5 rounded transition-colors"
             >
               Close
             </button>

@@ -29,30 +29,35 @@ export default function ProgressChart({ data }: ProgressChartProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3 }}
-      className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6"
+      transition={{ delay: 0.15 }}
+      className="bg-cine-surface border border-cine-border rounded p-6 shadow-xl"
     >
-      <h3 className="text-lg font-bold text-white mb-6">Score Trends</h3>
+      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cine-accent mb-1">Fluency Progress</p>
+      <h3 className="text-sm font-bold uppercase tracking-wider text-cine-text-primary mb-6">Score Trends</h3>
+      
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-          <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-          <YAxis domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#27272A" />
+          <XAxis dataKey="name" tick={{ fill: '#A1A1AA', fontSize: 10 }} />
+          <YAxis domain={[0, 100]} tick={{ fill: '#A1A1AA', fontSize: 10 }} />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#1e293b',
-              border: '1px solid #475569',
-              borderRadius: '8px',
-              color: '#f1f5f9',
+              backgroundColor: '#18181B',
+              border: '1px solid #27272A',
+              borderRadius: '4px',
+              color: '#F4F4F5',
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
             }}
           />
-          <Legend wrapperStyle={{ color: '#94a3b8' }} />
-          <Line type="monotone" dataKey="Grammar" stroke="#a78bfa" strokeWidth={2} dot={{ r: 4 }} />
-          <Line type="monotone" dataKey="Fluency" stroke="#22d3ee" strokeWidth={2} dot={{ r: 4 }} />
-          <Line type="monotone" dataKey="Vocabulary" stroke="#f472b6" strokeWidth={2} dot={{ r: 4 }} />
-          <Line type="monotone" dataKey="Confidence" stroke="#34d399" strokeWidth={2} dot={{ r: 4 }} />
+          <Legend wrapperStyle={{ color: '#A1A1AA', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }} />
+          <Line type="monotone" dataKey="Fluency" stroke="#F4B942" strokeWidth={2.5} dot={{ r: 4 }} />
+          <Line type="monotone" dataKey="Grammar" stroke="#E4E4E7" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 4" />
+          <Line type="monotone" dataKey="Vocabulary" stroke="#A1A1AA" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 4" />
+          <Line type="monotone" dataKey="Confidence" stroke="#52525B" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 4" />
         </LineChart>
       </ResponsiveContainer>
     </motion.div>

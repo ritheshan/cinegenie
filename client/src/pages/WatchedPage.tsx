@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api/axios';
 import { useGenres } from '../hooks/useDiscover';
+import { Film, Check, Mic, Plus } from 'lucide-react';
 
 import { watchedKeys, useRemoveWatched } from '../hooks/useWatched';
 import { useToastContext } from '../components/common/ToastContext';
@@ -25,10 +26,10 @@ const LANGUAGES = [
 
 type LibraryTab = 'all' | 'movie' | 'tv';
 
-const TABS: { id: LibraryTab; label: string; icon: string }[] = [
-  { id: 'all',   label: 'All',      icon: '🍿' },
-  { id: 'movie', label: 'Movies',   icon: '🎬' },
-  { id: 'tv',    label: 'TV Shows', icon: '📺' },
+const TABS: { id: LibraryTab; label: string }[] = [
+  { id: 'all',   label: 'All Titles' },
+  { id: 'movie', label: 'Movies' },
+  { id: 'tv',    label: 'TV Series' },
 ];
 
 export default function WatchedPage() {
@@ -40,8 +41,6 @@ export default function WatchedPage() {
 
   const typeParam = activeTab === 'all' ? undefined : activeTab;
 
-
-  // Proper filtered query
   const watchedQuery = useQuery({
     queryKey: watchedKeys.list(activeTab),
     queryFn: async () => {
@@ -53,7 +52,6 @@ export default function WatchedPage() {
 
   const rawItems: any[] = watchedQuery.data?.items ?? [];
   
-  // Local filter states
   const [filterYear, setFilterYear] = useState('');
   const [filterGenre, setFilterGenre] = useState('');
   const [filterLang, setFilterLang] = useState('');
@@ -61,7 +59,6 @@ export default function WatchedPage() {
 
   const { data: genres } = useGenres(activeTab === 'tv' ? 'tv' : 'movie');
 
-  // Apply filters client-side
   const items = useMemo(() => {
     return rawItems.filter(item => {
       if (filterYear && !item.releaseDate?.startsWith(filterYear)) return false;
@@ -79,7 +76,6 @@ export default function WatchedPage() {
 
   const handleRemove = useCallback(async (item: any) => {
     try {
-      // Optimistic removal from query cache
       qc.setQueryData(watchedKeys.list(activeTab), (old: any) => {
         if (!old) return old;
         return { ...old, items: old.items.filter((i: any) => i.mediaId !== item.mediaId) };
@@ -93,130 +89,126 @@ export default function WatchedPage() {
   }, [activeTab, qc, removeWatched, addToast, watchedQuery]);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <div className="flex items-end justify-between">
+    <div className="min-h-screen bg-cine-bg text-cine-text-primary">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-12">
+        {/* Editorial Title Section */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-1">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
-                  My Library
-                </span>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cine-text-muted mb-2">Cinematic Memory Archive</p>
+              <h1 className="text-3xl sm:text-4xl font-bold uppercase font-heading tracking-wide text-cine-text-primary">
+                My Library
               </h1>
-              <p className="text-slate-400">
-                {total > 0 ? `${total} title${total !== 1 ? 's' : ''} tracked` : 'Your personal collection'}
+              <p className="text-xs text-cine-text-secondary mt-1 font-semibold">
+                {total > 0 ? `${total} title${total !== 1 ? 's' : ''} logged` : 'Your catalog is empty'}
               </p>
             </div>
             <button
               onClick={() => navigate('/movies')}
-              className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold px-5 py-2.5 rounded-full transition-colors"
+              className="px-5 py-2 text-xs uppercase tracking-wider font-bold bg-cine-accent text-cine-bg hover:bg-opacity-95 rounded transition-all flex items-center gap-1"
             >
-              + Discover More
+              <Plus className="w-3.5 h-3.5 stroke-[2]" />
+              <span>Discover Films</span>
             </button>
           </div>
         </motion.div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-8 bg-slate-800/50 p-1.5 rounded-xl border border-slate-700/50 w-fit">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                setFilterGenre(''); // reset genre since it might be media specific
-              }}
-              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
-                activeTab === tab.id
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-              }`}
+        {/* Dynamic Filters Row & Tab Segments */}
+        <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center mb-8 border-b border-cine-border pb-6">
+          {/* Matte Tab Segments */}
+          <div className="flex bg-cine-surface border border-cine-border rounded p-0.5">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setFilterGenre('');
+                }}
+                className={`px-4 py-1.5 rounded text-[10px] uppercase tracking-wider font-bold transition-all duration-300 ${
+                  activeTab === tab.id
+                    ? 'bg-cine-accent text-cine-bg'
+                    : 'text-cine-text-secondary hover:text-cine-text-primary'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Inline Editorial Filters */}
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <select
+              value={filterYear}
+              onChange={e => setFilterYear(e.target.value)}
+              className="bg-cine-surface border border-cine-border rounded px-3 py-2 text-xs font-semibold text-cine-text-secondary focus:outline-none focus:border-cine-accent"
             >
-              <span>{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
+              <option value="">All Years</option>
+              {Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+
+            <select
+              value={filterGenre}
+              onChange={e => setFilterGenre(e.target.value)}
+              className="bg-cine-surface border border-cine-border rounded px-3 py-2 text-xs font-semibold text-cine-text-secondary focus:outline-none focus:border-cine-accent"
+            >
+              <option value="">All Genres</option>
+              {genres?.map((g) => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
+
+            <select
+              value={filterLang}
+              onChange={e => setFilterLang(e.target.value)}
+              className="bg-cine-surface border border-cine-border rounded px-3 py-2 text-xs font-semibold text-cine-text-secondary focus:outline-none focus:border-cine-accent"
+            >
+              <option value="">All Languages</option>
+              {LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>{lang.flag} {lang.label}</option>
+              ))}
+            </select>
+
+            <input
+              type="text"
+              placeholder="Filter Actor..."
+              value={filterActor}
+              onChange={e => setFilterActor(e.target.value)}
+              className="bg-cine-surface border border-cine-border rounded px-3 py-2 text-xs font-semibold text-cine-text-primary placeholder:text-cine-text-muted focus:outline-none focus:border-cine-accent"
+            />
+          </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4 mb-8">
-          <select
-            value={filterYear}
-            onChange={e => setFilterYear(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-200 focus:outline-none focus:border-purple-500"
-          >
-            <option value="">All Years</option>
-            {Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - i).map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-
-          <select
-            value={filterGenre}
-            onChange={e => setFilterGenre(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-200 focus:outline-none focus:border-purple-500"
-          >
-            <option value="">All Genres</option>
-            {genres?.map((g) => (
-              <option key={g.id} value={g.id}>{g.name}</option>
-            ))}
-          </select>
-
-          <select
-            value={filterLang}
-            onChange={e => setFilterLang(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-200 focus:outline-none focus:border-purple-500"
-          >
-            <option value="">All Languages</option>
-            {LANGUAGES.map((lang) => (
-              <option key={lang.code} value={lang.code}>{lang.flag} {lang.label}</option>
-            ))}
-          </select>
-
-          <input
-            type="text"
-            placeholder="Filter by Actor..."
-            value={filterActor}
-            onChange={e => setFilterActor(e.target.value)}
-            className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-200 focus:outline-none focus:border-purple-500 min-w-[200px]"
-          />
-        </div>
-
-        {/* Grid */}
+        {/* Cinematic Grid */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.3 }}
           >
             {watchedQuery.isLoading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
                 {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
               </div>
             ) : items.length === 0 ? (
-              <div className="bg-slate-800 border border-slate-700 rounded-xl p-16 text-center mt-4">
-                <div className="text-6xl mb-5">
-                  {activeTab === 'movie' ? '🎬' : activeTab === 'tv' ? '📺' : '🍿'}
-                </div>
-                <h2 className="text-2xl font-bold mb-2">
-                  {activeTab === 'all' ? 'Your library is empty' : `No ${activeTab === 'movie' ? 'movies' : 'TV shows'} yet`}
-                </h2>
-                <p className="text-slate-400 mb-8 max-w-md mx-auto">
-                  {activeTab === 'all'
-                    ? 'Start building your personal movie and TV series collection.'
-                    : `Add some ${activeTab === 'movie' ? 'movies' : 'TV shows'} to your library.`}
+              <div className="bg-cine-surface border border-cine-border rounded p-16 text-center max-w-xl mx-auto flex flex-col items-center justify-center">
+                <Film className="w-8 h-8 text-cine-text-muted/65 mb-4 stroke-[1.25]" />
+                <h2 className="text-lg font-bold uppercase tracking-wider mb-2 font-heading">Empty Collection</h2>
+                <p className="text-xs text-cine-text-secondary mb-6 leading-relaxed">
+                  Start logging your movie reviews and speech journals to build your premium personal cinematic archive shelf.
                 </p>
                 <button
                   onClick={() => navigate('/movies')}
-                  className="bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold py-3 px-8 rounded-full transition-colors"
+                  className="px-6 py-2.5 text-xs uppercase tracking-wider font-bold bg-cine-accent text-cine-bg hover:bg-opacity-95 rounded transition-all"
                 >
-                  Discover Media
+                  Discover Films
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
                 {items.map((item: any, i: number) => {
                   const title = item.title || item.name;
                   const year = item.releaseDate?.substring(0, 4) || '';
@@ -226,50 +218,51 @@ export default function WatchedPage() {
                       key={item._id}
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: Math.min(i * 0.04, 0.4) }}
-                      className="group"
+                      transition={{ delay: Math.min(i * 0.02, 0.3) }}
+                      className="group cursor-pointer bg-cine-surface border border-cine-border rounded overflow-hidden transition-all duration-300"
+                      onClick={() => navigate(`/media/${item.mediaType}/${item.mediaId}`)}
                     >
-                      <div
-                        className="relative rounded-lg overflow-hidden aspect-[2/3] bg-slate-800 border border-slate-700/50 group-hover:border-purple-500/60 transition-all cursor-pointer"
-                        onClick={() => navigate(`/media/${item.mediaType}/${item.mediaId}`)}
-                      >
+                      <div className="relative aspect-[2/3] bg-cine-bg overflow-hidden">
                         {item.posterPath ? (
                           <img
                             src={`https://image.tmdb.org/t/p/w400${item.posterPath}`}
                             alt={title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-600 text-sm">No Poster</div>
+                          <div className="w-full h-full flex items-center justify-center text-cine-text-muted bg-cine-bg text-xs">No Poster</div>
                         )}
 
-                        {/* Watched badge */}
-                        <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold shadow-md">
-                          ✓
+                        {/* Minimalist Top Check Tag */}
+                        <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-cine-bg shadow-md">
+                          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                         </div>
 
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex items-end justify-center pb-3 gap-2 opacity-0 group-hover:opacity-100">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleRemove(item); }}
-                            className="w-8 h-8 rounded-full bg-red-500/90 flex items-center justify-center text-white text-sm hover:bg-red-400 transition-colors"
-                            title="Remove"
-                          >✕</button>
+                        {/* High-End Hover Overlay Controls */}
+                        <div className="absolute inset-0 bg-cine-bg/75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 gap-2">
                           <button
                             onClick={(e) => { e.stopPropagation(); navigate(`/media/${item.mediaType}/${item.mediaId}?talk=true`); }}
-                            className="w-8 h-8 rounded-full bg-purple-500/90 flex items-center justify-center text-sm hover:bg-purple-400 transition-colors"
-                            title="Talk about it"
-                          >🎤</button>
+                            className="w-full py-2 bg-cine-accent text-cine-bg text-[10px] uppercase font-bold tracking-wider hover:bg-opacity-95 rounded transition-all text-center flex items-center justify-center gap-1"
+                          >
+                            <Mic className="w-3.5 h-3.5 stroke-[1.75]" />
+                            <span>Talk Review</span>
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRemove(item); }}
+                            className="w-full py-2 bg-cine-bg border border-cine-border text-red-400 text-[10px] uppercase font-bold tracking-wider hover:bg-cine-card rounded transition-all text-center"
+                          >
+                            Remove
+                          </button>
                         </div>
                       </div>
 
-                      <div className="mt-2">
-                        <p className="text-sm font-semibold text-white truncate">{title}</p>
-                        <div className="flex justify-between text-xs text-slate-400 mt-0.5">
+                      <div className="p-4">
+                        <p className="text-xs font-semibold text-cine-text-primary truncate uppercase tracking-wider">{title}</p>
+                        <div className="flex justify-between items-center mt-1 text-[10px] text-cine-text-muted font-bold">
                           <span>{year}</span>
-                          <span className={item.mediaType === 'tv' ? 'text-cyan-400' : 'text-purple-400'}>
-                            {item.mediaType === 'tv' ? '📺' : '🎬'}
+                          <span className="uppercase tracking-wider">
+                            {item.mediaType === 'tv' ? 'TV Show' : 'Movie'}
                           </span>
                         </div>
                       </div>

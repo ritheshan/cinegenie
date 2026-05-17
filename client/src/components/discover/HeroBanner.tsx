@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAddWatched, useRemoveWatched } from '../../hooks/useWatched';
 import { useToastContext } from '../common/ToastContext';
+import { MonitorPlay, Clapperboard, Star, CirclePlay, Check, Plus, Mic } from 'lucide-react';
 
 interface HeroBannerProps {
   items: any[];
@@ -60,7 +61,7 @@ export default function HeroBanner({ items, watchedIds }: HeroBannerProps) {
   }, [items, currentIndex, removeWatched, addToast]);
 
   if (!items.length) {
-    return <div className="h-[70vh] bg-slate-900 animate-pulse" />;
+    return <div className="h-[72vh] bg-cine-surface animate-pulse border-b border-cine-border" />;
   }
 
   const item = items[currentIndex];
@@ -70,7 +71,7 @@ export default function HeroBanner({ items, watchedIds }: HeroBannerProps) {
   const isWatched = watchedIds.has(item.id);
 
   return (
-    <div className="relative h-[72vh] min-h-[480px] w-full overflow-hidden">
+    <div className="relative h-[72vh] min-h-[480px] w-full overflow-hidden border-b border-cine-border bg-cine-bg">
       <AnimatePresence mode="wait">
         <motion.div
           key={item.id}
@@ -88,43 +89,56 @@ export default function HeroBanner({ items, watchedIds }: HeroBannerProps) {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900" />
+            <div className="w-full h-full bg-gradient-to-br from-cine-bg to-cine-surface" />
           )}
 
           {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-cine-bg via-cine-bg/60 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-cine-bg via-transparent to-cine-bg/20 z-10" />
         </motion.div>
       </AnimatePresence>
 
       {/* Content */}
-      <div className="relative z-10 h-full flex items-end pb-16 px-6 md:px-12 lg:px-16">
+      <div className="relative z-20 h-full flex items-end pb-16 px-6 md:px-12 lg:px-16">
         <AnimatePresence mode="wait">
           <motion.div
             key={item.id + '-content'}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="max-w-2xl"
+            className="max-w-2xl text-left"
           >
             {/* Badge */}
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-purple-400 border border-purple-500/40 px-3 py-1 rounded-full bg-purple-500/10">
-                {mediaType === 'tv' ? '📺 Series' : '🎬 Movie'}
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <span className="text-[9px] font-black uppercase tracking-widest text-cine-accent border border-cine-accent/30 px-3 py-1 rounded bg-cine-accent/5 flex items-center gap-1.5">
+                {mediaType === 'tv' ? (
+                  <>
+                    <MonitorPlay className="w-3.5 h-3.5 stroke-[1.75]" />
+                    <span>TV Show</span>
+                  </>
+                ) : (
+                  <>
+                    <Clapperboard className="w-3.5 h-3.5 stroke-[1.75]" />
+                    <span>Film</span>
+                  </>
+                )}
               </span>
-              {year && <span className="text-slate-400 text-sm">{year}</span>}
+              {year && <span className="text-cine-text-muted font-bold text-xs uppercase tracking-wider bg-cine-surface border border-cine-border px-2.5 py-1 rounded">{year}</span>}
               {item.vote_average > 0 && (
-                <span className="text-yellow-400 text-sm font-semibold">★ {item.vote_average.toFixed(1)}</span>
+                <span className="text-cine-accent text-xs font-bold uppercase tracking-wider bg-cine-surface border border-cine-border px-2.5 py-1 rounded flex items-center gap-1">
+                  <Star className="w-3.5 h-3.5 fill-cine-accent text-cine-accent stroke-none" />
+                  {item.vote_average.toFixed(1)} Rating
+                </span>
               )}
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-black text-white mb-4 leading-tight drop-shadow-2xl">
+            <h1 className="text-4xl md:text-5xl font-bold uppercase font-heading tracking-wide text-cine-text-primary mb-4 leading-tight">
               {title}
             </h1>
 
             {item.overview && (
-              <p className="text-slate-300 text-base md:text-lg leading-relaxed mb-8 max-w-xl line-clamp-3">
+              <p className="text-cine-text-secondary text-sm md:text-base leading-relaxed mb-8 max-w-xl line-clamp-3 font-medium">
                 {item.overview}
               </p>
             )}
@@ -133,34 +147,38 @@ export default function HeroBanner({ items, watchedIds }: HeroBannerProps) {
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={() => navigate(`/media/${mediaType}/${item.id}`)}
-                className="bg-white text-slate-900 hover:bg-slate-100 font-bold px-6 py-3 rounded-full transition-all hover:scale-105 flex items-center gap-2 shadow-lg"
+                className="bg-cine-text-primary text-cine-bg hover:bg-opacity-90 font-bold text-xs uppercase tracking-wider px-6 py-3 rounded transition-all flex items-center gap-1.5"
               >
-                ▶ More Info
+                <CirclePlay className="w-4 h-4 stroke-[1.75]" />
+                More Info
               </button>
 
               {isWatched ? (
                 <button
                   onClick={handleRemove}
                   disabled={removeWatched.isPending}
-                  className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-400 font-bold px-6 py-3 rounded-full transition-all flex items-center gap-2"
+                  className="bg-cine-accent/10 border border-cine-accent/30 text-cine-accent hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 font-bold text-xs uppercase tracking-wider px-6 py-3 rounded transition-all flex items-center gap-1.5"
                 >
-                  ✓ In Library
+                  <Check className="w-4 h-4 stroke-[2]" />
+                  In Library
                 </button>
               ) : (
                 <button
                   onClick={handleAdd}
                   disabled={addWatched.isPending}
-                  className="bg-slate-700/80 border border-slate-600 text-white hover:bg-purple-600 hover:border-purple-500 font-bold px-6 py-3 rounded-full transition-all hover:scale-105 flex items-center gap-2"
+                  className="bg-cine-surface border border-cine-border text-cine-text-primary hover:border-cine-accent font-bold text-xs uppercase tracking-wider px-6 py-3 rounded transition-all flex items-center gap-1.5"
                 >
-                  + Add to Library
+                  <Plus className="w-4 h-4 stroke-[2.5]" />
+                  Add to Library
                 </button>
               )}
 
               <button
                 onClick={() => navigate(`/media/${mediaType}/${item.id}?talk=true`)}
-                className="bg-purple-600/80 border border-purple-500/50 text-white hover:bg-purple-600 font-bold px-6 py-3 rounded-full transition-all hover:scale-105 flex items-center gap-2"
+                className="bg-cine-accent hover:bg-opacity-95 text-cine-bg font-bold text-xs uppercase tracking-wider px-6 py-3 rounded transition-all flex items-center gap-1.5"
               >
-                🎤 Talk About It
+                <Mic className="w-4 h-4 stroke-[1.75]" />
+                Talk Critique
               </button>
             </div>
           </motion.div>
@@ -168,13 +186,13 @@ export default function HeroBanner({ items, watchedIds }: HeroBannerProps) {
       </div>
 
       {/* Dot indicators */}
-      <div className="absolute bottom-6 right-8 flex gap-2 z-10">
+      <div className="absolute bottom-6 right-8 flex gap-2 z-30">
         {Array.from({ length: Math.min(items.length, 6) }).map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrentIndex(i)}
-            className={`transition-all rounded-full ${
-              i === currentIndex ? 'w-6 h-2 bg-purple-400' : 'w-2 h-2 bg-white/30 hover:bg-white/60'
+            className={`transition-all rounded ${
+              i === currentIndex ? 'w-6 h-2 bg-cine-accent' : 'w-2 h-2 bg-cine-border hover:bg-cine-accent/50'
             }`}
           />
         ))}

@@ -12,6 +12,7 @@ import { useWatchedStatus, useAddWatched, useRemoveWatched } from '../hooks/useW
 import { useWatchlistStatus, useAddWatchlist, useRemoveWatchlist } from '../hooks/useWatchlist';
 import Navbar from '../components/common/Navbar';
 import AuthPromptModal from '../components/common/AuthPromptModal';
+import { Star, Mic, Check, Bookmark } from 'lucide-react';
 
 export default function MediaDetailsPage() {
   const { type, id } = useParams<{ type: 'movie' | 'tv'; id: string }>();
@@ -29,11 +30,9 @@ export default function MediaDetailsPage() {
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Guest Redirect Modal States
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalActionText, setAuthModalActionText] = useState('track this media');
 
-  // Status hooks - only run query if authenticated!
   const { data: watchedSet } = useWatchedStatus(media && isAuthenticated ? [media.id] : [], type || 'movie');
   const { data: watchlistSet } = useWatchlistStatus(media && isAuthenticated ? [media.id] : [], type || 'movie');
   
@@ -49,7 +48,6 @@ export default function MediaDetailsPage() {
     if (!id || !type) return;
     loadMediaDetails();
     
-    // Auto-open recorder if ?talk=true (if authenticated)
     const searchParams = new URLSearchParams(location.search);
     if (searchParams.get('talk') === 'true') {
       if (isAuthenticated) {
@@ -201,16 +199,16 @@ export default function MediaDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
+      <div className="min-h-screen bg-cine-bg flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cine-accent"></div>
       </div>
     );
   }
 
   if (error || !media) {
     return (
-      <div className="min-h-screen bg-slate-900 flex justify-center items-center text-red-400">
-        {error || 'Media not found'}
+      <div className="min-h-screen bg-cine-bg flex justify-center items-center text-red-400 font-bold uppercase tracking-wider text-xs">
+        {error || 'Media details could not be loaded.'}
       </div>
     );
   }
@@ -219,14 +217,14 @@ export default function MediaDetailsPage() {
   const releaseDate = media.release_date || media.first_air_date;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative font-sans">
+    <div className="min-h-screen bg-cine-bg text-cine-text-primary flex flex-col relative">
       <Navbar />
 
       {analyzing && (
-        <div className="fixed inset-0 bg-slate-950/90 flex flex-col justify-center items-center z-50 p-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500 mb-6"></div>
-          <h2 className="text-2xl font-bold text-white text-center">AI is analyzing your speech...</h2>
-          <p className="text-slate-400 mt-2">Checking grammar, fluency, and vocabulary</p>
+        <div className="fixed inset-0 bg-cine-bg/95 flex flex-col justify-center items-center z-50 p-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cine-accent mb-6"></div>
+          <h2 className="text-xl font-bold uppercase tracking-widest text-cine-text-primary">Analyzing journal session...</h2>
+          <p className="text-xs text-cine-text-muted mt-2 uppercase font-bold tracking-wider">Evaluating vocabulary, structure & tone</p>
         </div>
       )}
 
@@ -246,17 +244,16 @@ export default function MediaDetailsPage() {
         />
       )}
 
-      {/* Guest Authentication Modal Prompter */}
       <AuthPromptModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         actionText={authModalActionText}
       />
 
-      {/* Backdrop Header */}
-      <div className="relative h-[65vh] w-full flex-shrink-0">
-        <div className="absolute inset-0 bg-black/60 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent z-10" />
+      {/* Hero Backdrop Backdrop Container */}
+      <div className="relative h-[60vh] w-full flex-shrink-0">
+        <div className="absolute inset-0 bg-cine-bg/60 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-cine-bg via-cine-bg/40 to-transparent z-10" />
         {media.backdrop_path && (
           <img
             src={`https://image.tmdb.org/t/p/original${media.backdrop_path}`}
@@ -266,27 +263,34 @@ export default function MediaDetailsPage() {
         )}
 
         <div className="absolute bottom-0 left-0 w-full z-20 p-6 sm:p-8">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 sm:gap-8 items-center md:items-end">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 items-center md:items-end">
             {media.poster_path && (
               <img
                 src={`https://image.tmdb.org/t/p/w500${media.poster_path}`}
                 alt={title}
-                className="w-48 md:w-64 rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.5)] border border-slate-800 hidden md:block"
+                className="w-48 md:w-56 rounded border border-cine-border shadow-2xl hidden md:block"
               />
             )}
             <div className="flex-1 pb-4 text-center md:text-left">
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-none mb-4">{title}</h1>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm text-slate-300 mb-6">
-                <span className="bg-purple-600 text-white px-3 py-1 rounded-full font-bold">
-                  ★ {media.vote_average?.toFixed(1)}
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-cine-accent mb-2 flex items-center justify-center md:justify-start gap-1">
+                <Star className="w-3.5 h-3.5 fill-cine-accent text-cine-accent stroke-none" />
+                <span>{media.vote_average?.toFixed(1)} / TMDB Rating</span>
+              </span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold uppercase font-heading tracking-wide text-cine-text-primary leading-tight mb-4">
+                {title}
+              </h1>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-[10px] text-cine-text-secondary font-bold mb-6">
+                <span className="bg-cine-surface border border-cine-border px-2.5 py-1 rounded">
+                  {releaseDate?.substring(0, 4)}
                 </span>
-                <span>{releaseDate?.substring(0, 4)}</span>
-                <span className="uppercase border border-slate-700 bg-slate-850 px-2 py-0.5 rounded text-xs font-semibold">{type}</span>
+                <span className="uppercase border border-cine-border bg-cine-surface px-2.5 py-1 rounded">
+                  {type}
+                </span>
                 {media.genres?.map((g: any) => (
-                  <span key={g.id} className="text-cyan-400 font-medium">{g.name}</span>
+                  <span key={g.id} className="text-cine-accent font-bold uppercase tracking-wider">{g.name}</span>
                 ))}
               </div>
-              <p className="text-sm sm:text-base md:text-lg text-slate-300 max-w-3xl leading-relaxed mb-8">
+              <p className="text-xs sm:text-sm text-cine-text-secondary max-w-3xl leading-relaxed mb-8 font-medium">
                 {media.overview}
               </p>
               
@@ -300,23 +304,34 @@ export default function MediaDetailsPage() {
                       setShowRecorder(true);
                     }
                   }}
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 px-6 sm:px-8 rounded-full shadow-lg shadow-purple-500/30 transition-all transform hover:scale-[1.03] flex items-center gap-2 text-base sm:text-lg"
+                  className="bg-cine-accent text-cine-bg text-xs uppercase font-bold tracking-wider px-6 py-3 hover:bg-opacity-90 rounded transition-all flex items-center gap-1.5"
                 >
-                  <span className="text-xl sm:text-2xl">🎤</span> Talk About This
+                  <Mic className="w-4 h-4 stroke-[1.75]" />
+                  <span>Talk Journal Entry</span>
                 </button>
 
                 <button
                   onClick={handleToggleWatched}
-                  className={`font-bold py-3.5 px-6 sm:px-8 rounded-full shadow-lg transition-all transform hover:scale-[1.03] flex items-center gap-2 text-base sm:text-lg ${isWatched ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/30' : 'bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white'}`}
+                  className={`text-xs uppercase font-bold tracking-wider px-6 py-3 rounded transition-all flex items-center gap-1.5 ${
+                    isWatched
+                      ? 'border border-green-500 text-green-400 bg-cine-surface'
+                      : 'border border-cine-border text-cine-text-primary bg-cine-surface hover:bg-cine-card'
+                  }`}
                 >
-                  <span className="text-lg sm:text-xl">👁️</span> {isWatched ? 'Watched' : 'Mark Watched'}
+                  <Check className="w-4 h-4 stroke-[2]" />
+                  <span>{isWatched ? 'Watched' : 'Mark Watched'}</span>
                 </button>
 
                 <button
                   onClick={handleToggleWatchlist}
-                  className={`font-bold py-3.5 px-6 sm:px-8 rounded-full shadow-lg transition-all transform hover:scale-[1.03] flex items-center gap-2 text-base sm:text-lg ${inWatchlist ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/30' : 'bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white'}`}
+                  className={`text-xs uppercase font-bold tracking-wider px-6 py-3 rounded transition-all flex items-center gap-1.5 ${
+                    inWatchlist
+                      ? 'border border-cine-accent text-cine-accent bg-cine-surface'
+                      : 'border border-cine-border text-cine-text-primary bg-cine-surface hover:bg-cine-card'
+                  }`}
                 >
-                  <span className="text-lg sm:text-xl">🔖</span> {inWatchlist ? 'Saved' : 'Save for Later'}
+                  <Bookmark className="w-4 h-4 stroke-[1.75]" />
+                  <span>{inWatchlist ? 'Saved List' : 'Save Watchlist'}</span>
                 </button>
               </div>
             </div>

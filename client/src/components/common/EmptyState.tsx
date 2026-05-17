@@ -1,27 +1,28 @@
 import { motion } from 'framer-motion';
+import { LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
-  icon: string;
+  icon: LucideIcon;
   title: string;
   description: string;
   actionLabel?: string;
   onAction?: () => void;
 }
 
-export default function EmptyState({ icon, title, description, actionLabel, onAction }: EmptyStateProps) {
+export default function EmptyState({ icon: Icon, title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center justify-center py-16 text-center"
     >
-      <span className="text-6xl mb-4">{icon}</span>
-      <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-      <p className="text-slate-400 max-w-md mb-6">{description}</p>
+      <Icon className="w-12 h-12 text-cine-text-muted/40 stroke-[1.25] mb-4" />
+      <h3 className="text-xl font-bold uppercase tracking-wider text-cine-text-primary mb-2 font-heading">{title}</h3>
+      <p className="text-xs text-cine-text-secondary max-w-sm mb-6 leading-relaxed font-medium">{description}</p>
       {actionLabel && onAction && (
         <button
           onClick={onAction}
-          className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          className="bg-cine-accent hover:bg-opacity-95 text-cine-bg font-bold text-xs uppercase tracking-wider py-2.5 px-6 rounded transition-all"
         >
           {actionLabel}
         </button>

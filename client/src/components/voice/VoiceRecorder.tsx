@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { useAudioRecorder } from '../../hooks/useAudioRecorder';
 import { aiApi } from '../../api/ai.api';
+import { X, Mic, Square, Loader2 } from 'lucide-react';
 
 interface VoiceRecorderProps {
   onComplete: (transcript: string) => void;
@@ -20,7 +21,6 @@ export default function VoiceRecorder({ onComplete, onCancel }: VoiceRecorderPro
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const hasTranscribedRef = useRef(false);
 
-  // Cleanup on unmount — stop both hooks (fixes Cancel mic leak)
   useEffect(() => {
     return () => {
       speech.stopListening();
@@ -29,7 +29,6 @@ export default function VoiceRecorder({ onComplete, onCancel }: VoiceRecorderPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Recording timer + auto-stop at max duration
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (audio.isRecording) {
@@ -48,7 +47,6 @@ export default function VoiceRecorder({ onComplete, onCancel }: VoiceRecorderPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audio.isRecording]);
 
-  // When audio blob is ready, send to Whisper (guarded against StrictMode double-fire)
   useEffect(() => {
     if (audio.audioBlob && !audio.isRecording && !hasTranscribedRef.current) {
       hasTranscribedRef.current = true;
@@ -85,7 +83,6 @@ export default function VoiceRecorder({ onComplete, onCancel }: VoiceRecorderPro
     hasTranscribedRef.current = false;
     audio.clearRecording();
 
-    // Start both: audio recorder (primary) + speech recognition (optional live preview)
     audio.startRecording();
     if (speech.isSupported) {
       speech.startListening();
@@ -112,16 +109,17 @@ export default function VoiceRecorder({ onComplete, onCancel }: VoiceRecorderPro
   const displayError = audio.error || speech.error || transcribeError;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/90 flex justify-center items-center z-50 p-4">
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-8 max-w-2xl w-full shadow-2xl relative">
-        <button onClick={onCancel} className="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
-          ✕
+    <div className="fixed inset-0 bg-cine-bg/95 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
+      <div className="bg-cine-surface border border-cine-border rounded p-8 max-w-xl w-full relative shadow-2xl">
+        <button onClick={onCancel} className="absolute top-4 right-4 text-cine-text-muted hover:text-cine-text-primary">
+          <X className="w-4 h-4 stroke-[2]" />
         </button>
 
-        <h2 className="text-2xl font-bold text-white mb-6">Talk About the Movie</h2>
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cine-accent mb-2">Speech Journaling</p>
+        <h2 className="text-xl font-bold uppercase tracking-wider text-cine-text-primary font-heading mb-6">Record Movie Journal</h2>
 
         {displayError && (
-          <div className="bg-red-500/20 text-red-400 p-3 rounded mb-4 text-sm">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded mb-4 text-xs font-semibold">
             {displayError}
           </div>
         )}
@@ -130,70 +128,92 @@ export default function VoiceRecorder({ onComplete, onCancel }: VoiceRecorderPro
           <button
             onClick={audio.isRecording ? handleStop : handleStart}
             disabled={isTranscribing}
-            className={`w-24 h-24 rounded-full flex items-center justify-center text-4xl transition-all ${
-              audio.isRecording
-                ? 'bg-red-500 hover:bg-red-600 shadow-[0_0_30px_rgba(239,68,68,0.6)]'
-                : 'bg-purple-600 hover:bg-purple-700 shadow-lg'
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-            style={audio.isRecording ? { animation: 'mic-pulse 1.5s ease-in-out infinite' } : {}}
+            className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500 ${
+              isTranscribing
+                ? 'bg-cine-card text-cine-text-muted cursor-not-allowed'
+                : audio.isRecording
+                  ? 'bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)]'
+                  : 'bg-cine-accent text-cine-bg hover:opacity-90 shadow-lg'
+            } disabled:opacity-50`}
+            style={audio.isRecording ? { animation: 'mic-pulse 1.8s ease-in-out infinite' } : {}}
           >
-            {audio.isRecording ? '⏹' : '🎤'}
+            {isTranscribing ? (
+              <Loader2 className="w-7 h-7 stroke-[2.25] animate-spin text-cine-text-muted" />
+            ) : audio.isRecording ? (
+              <Square className="w-5 h-5 fill-white stroke-none" />
+            ) : (
+              <Mic className="w-7 h-7 stroke-[1.75]" />
+            )}
           </button>
-          <p className="mt-4 text-slate-400 font-medium">
+
+          {/* Elegant Animated Waveform Visualizer */}
+          {audio.isRecording && (
+            <div className="flex justify-center items-end gap-1 h-8 mt-5 mb-1">
+              <div className="w-1 bg-red-500 rounded animate-wave-bar h-4" style={{ animationDelay: '0.1s' }} />
+              <div className="w-1 bg-red-500 rounded animate-wave-bar h-7" style={{ animationDelay: '0.3s' }} />
+              <div className="w-1 bg-red-500 rounded animate-wave-bar h-5" style={{ animationDelay: '0.5s' }} />
+              <div className="w-1 bg-red-500 rounded animate-wave-bar h-8" style={{ animationDelay: '0.2s' }} />
+              <div className="w-1 bg-red-500 rounded animate-wave-bar h-4" style={{ animationDelay: '0.4s' }} />
+            </div>
+          )}
+
+          <p className="mt-4 text-xs text-cine-text-secondary font-bold uppercase tracking-wider">
             {isTranscribing
-              ? 'Finalizing transcript...'
+              ? 'Analyzing speech & transcribing...'
               : audio.isRecording
-                ? `Recording ${formatTime(recordingSeconds)} — Click to stop`
-                : 'Click mic to start recording'}
+                ? `Recording ${formatTime(recordingSeconds)} • Tap to Stop`
+                : 'Tap microphone to start journal entry'}
           </p>
           {audio.isRecording && recordingSeconds >= MAX_RECORDING_SECONDS - 30 && (
-            <p className="text-amber-400 text-xs mt-1">Auto-stops in {MAX_RECORDING_SECONDS - recordingSeconds}s</p>
+            <p className="text-cine-accent text-[10px] uppercase font-bold mt-1">Auto-stopping in {MAX_RECORDING_SECONDS - recordingSeconds}s</p>
           )}
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium text-slate-400 mb-2">
+          <label className="block text-[10px] font-bold uppercase tracking-widest text-cine-text-muted mb-2">
             {audio.isRecording
-              ? speech.isSupported ? 'Live Preview' : 'Recording...'
-              : 'Transcript'}
+              ? speech.isSupported ? 'Live Transcription Preview' : 'Recording Audio'
+              : 'Interactive Transcript'}
           </label>
           <div className="relative">
             <textarea
               value={audio.isRecording ? (speech.isSupported ? speech.liveTranscript : '') : editableTranscript}
               onChange={(e) => !audio.isRecording && !isTranscribing && setEditableTranscript(e.target.value)}
               disabled={audio.isRecording || isTranscribing}
-              className="w-full h-40 bg-slate-700 border border-slate-600 rounded-lg p-4 text-slate-100 focus:outline-none focus:border-purple-500 resize-none disabled:opacity-70"
+              className="w-full h-36 bg-cine-bg border border-cine-border rounded p-4 text-xs text-cine-text-primary focus:outline-none focus:border-cine-accent resize-none disabled:opacity-75 font-medium leading-relaxed"
               placeholder={
                 audio.isRecording
                   ? speech.isSupported
-                    ? 'Speak now... your words will appear here in real-time'
-                    : 'Recording audio... transcript will appear after you stop'
+                    ? 'Speak naturally... your words will appear here in real-time.'
+                    : 'Recording session audio... your transcript will be finalized after you stop.'
                   : isTranscribing
-                    ? 'Processing with Whisper AI...'
-                    : 'Your transcript will appear here. You can edit before submitting.'
+                    ? 'Whisper AI is generating high-accuracy transcript...'
+                    : 'Your completed voice review will appear here. Feel free to edit or refine.'
               }
             />
             {isTranscribing && (
-              <div className="absolute inset-0 bg-slate-800/80 rounded-lg flex flex-col justify-center items-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500 mb-3"></div>
-                <span className="text-purple-400 font-medium text-sm">Transcribing with Whisper AI...</span>
-                <span className="text-slate-500 text-xs mt-1">Auto-detects any language</span>
+              <div className="absolute inset-0 bg-cine-surface/90 rounded flex flex-col justify-center items-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cine-accent mb-3"></div>
+                <span className="text-cine-accent font-bold text-[10px] uppercase tracking-wider">Processing with Whisper AI</span>
               </div>
             )}
           </div>
           {audio.isRecording && speech.isSupported && (
-            <p className="text-xs text-slate-500 mt-1">Live preview via browser — final transcript powered by Whisper AI</p>
+            <p className="text-[9px] uppercase tracking-wider text-cine-text-muted mt-2">Real-time local prediction • final run via Whisper API</p>
           )}
         </div>
 
-        <div className="flex justify-end gap-4">
-          <button onClick={onCancel} className="px-6 py-2 rounded text-slate-300 hover:bg-slate-700 transition-colors">
+        <div className="flex justify-end gap-3 border-t border-cine-border pt-4">
+          <button
+            onClick={onCancel}
+            className="px-5 py-2 rounded text-[10px] uppercase font-bold tracking-wider text-cine-text-secondary hover:text-cine-text-primary transition-colors bg-cine-bg border border-cine-border"
+          >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={audio.isRecording || isTranscribing || !editableTranscript.trim()}
-            className="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-bold px-8 py-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-cine-accent hover:bg-opacity-95 text-cine-bg text-[10px] uppercase font-bold tracking-wider px-6 py-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Analyze & Save
           </button>
@@ -202,8 +222,16 @@ export default function VoiceRecorder({ onComplete, onCancel }: VoiceRecorderPro
 
       <style>{`
         @keyframes mic-pulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-          50% { transform: scale(1.05); box-shadow: 0 0 30px 10px rgba(239, 68, 68, 0.3); }
+          0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+          50% { transform: scale(1.05); box-shadow: 0 0 20px 8px rgba(239, 68, 68, 0.2); }
+        }
+        @keyframes wave-bar {
+          0%, 100% { transform: scaleY(1); }
+          50% { transform: scaleY(2.2); }
+        }
+        .animate-wave-bar {
+          animation: wave-bar 1s ease-in-out infinite;
+          transform-origin: bottom;
         }
       `}</style>
     </div>

@@ -37,29 +37,33 @@ export default function JournalPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">Journal</span>
+    <div className="min-h-screen bg-cine-bg text-cine-text-primary">
+      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-12">
+        {/* Title Section */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cine-text-muted mb-2">Review Archive</p>
+          <h1 className="text-3xl sm:text-4xl font-bold uppercase font-heading tracking-wide text-cine-text-primary">
+            Speech Journal
           </h1>
-          <p className="text-slate-400">Review your past speaking sessions and AI feedback</p>
+          <p className="text-xs text-cine-text-secondary mt-1 font-semibold">Your archived speaking sessions & editorial communication evaluations</p>
         </motion.div>
 
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-slate-800 rounded-xl animate-pulse"></div>
+              <div key={i} className="h-28 bg-cine-surface border border-cine-border rounded animate-pulse"></div>
             ))}
           </div>
         ) : entries.length === 0 ? (
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-12 text-center mt-8">
-            <div className="text-5xl mb-4">🎙️</div>
-            <h2 className="text-2xl font-bold mb-2">No entries yet</h2>
-            <p className="text-slate-400 mb-6">Talk about a movie to create your first journal entry.</p>
+          <div className="bg-cine-surface border border-cine-border rounded p-16 text-center max-w-xl mx-auto">
+            <div className="text-4xl mb-4">🎙️</div>
+            <h2 className="text-lg font-bold uppercase tracking-wider mb-2 font-heading">No Journal Entries</h2>
+            <p className="text-xs text-cine-text-secondary mb-6 leading-relaxed">
+              Start talking about movies or TV shows from your collection to generate your first conversational critique session.
+            </p>
             <button
               onClick={() => navigate('/watched')}
-              className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 px-8 rounded-full transition-colors"
+              className="px-6 py-2.5 text-xs uppercase tracking-wider font-bold bg-cine-accent text-cine-bg hover:bg-opacity-95 rounded transition-all"
             >
               Go to Library
             </button>
@@ -79,35 +83,35 @@ export default function JournalPage() {
                   key={entry._id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
+                  transition={{ delay: i * 0.03 }}
                   onClick={() => setSelectedEntry(entry)}
-                  className="bg-slate-800 hover:bg-slate-750 border border-slate-700 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center gap-6 cursor-pointer hover:border-amber-500/50 transition-all group"
+                  className="bg-cine-surface hover:bg-cine-card border border-cine-border rounded p-5 flex flex-col md:flex-row items-start md:items-center gap-6 cursor-pointer hover:border-cine-accent transition-all duration-300 group"
                 >
                   {entry.posterPath ? (
                     <img 
                       src={`https://image.tmdb.org/t/p/w200${entry.posterPath}`} 
                       alt={entry.title}
-                      className="w-16 h-24 object-cover rounded shadow-md group-hover:scale-105 transition-transform"
+                      className="w-14 h-20 object-cover rounded shadow-md group-hover:scale-[1.02] transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-16 h-24 bg-slate-700 rounded flex items-center justify-center text-xs text-slate-500">
-                      No img
+                    <div className="w-14 h-20 bg-cine-bg border border-cine-border rounded flex items-center justify-center text-[10px] uppercase font-bold text-cine-text-muted">
+                      No Poster
                     </div>
                   )}
                   
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <h3 className="text-xl font-bold text-white">{entry.title}</h3>
-                      <span className="text-xs text-slate-400 px-2 py-0.5 bg-slate-700 rounded">{formatDate(entry.createdAt)}</span>
+                    <div className="flex flex-wrap items-baseline gap-3 mb-2">
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-cine-text-primary group-hover:text-cine-accent transition-colors">{entry.title}</h3>
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-cine-text-muted px-2 py-0.5 bg-cine-bg border border-cine-border rounded">{formatDate(entry.createdAt)}</span>
                     </div>
-                    <p className="text-slate-400 text-sm line-clamp-2 max-w-2xl italic">
+                    <p className="text-xs text-cine-text-secondary leading-relaxed line-clamp-2 max-w-2xl italic font-medium">
                       "{entry.transcript}"
                     </p>
                   </div>
                   
-                  <div className="flex flex-col items-center justify-center min-w-[80px] mt-4 md:mt-0 p-3 bg-slate-900/50 rounded-lg">
-                    <span className="text-2xl font-bold text-amber-400">{avgScore}</span>
-                    <span className="text-[10px] text-slate-500 uppercase tracking-wider">Avg Score</span>
+                  <div className="flex flex-col items-center justify-center min-w-[70px] mt-4 md:mt-0 p-3 bg-cine-bg border border-cine-border rounded">
+                    <span className="text-xl font-bold text-cine-accent">{avgScore}</span>
+                    <span className="text-[8px] font-bold text-cine-text-muted uppercase tracking-widest mt-0.5">Rating</span>
                   </div>
                 </motion.div>
               );

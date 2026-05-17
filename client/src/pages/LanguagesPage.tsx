@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { SUPPORTED_LANGUAGES } from '../api/language.api';
+import Navbar from '../components/common/Navbar';
 
 const CINEMA_HIGHLIGHTS: Record<string, string[]> = {
   en: ['Marvel', 'DC', 'Pixar', 'Oscar Winners'],
@@ -16,80 +17,64 @@ const CINEMA_HIGHLIGHTS: Record<string, string[]> = {
   zh: ['Zhang Yimou', 'Wong Kar-wai', 'C-Dramas', 'Wuxia'],
 };
 
-const GRADIENTS: Record<string, string> = {
-  en: 'from-blue-600 to-indigo-700',
-  ko: 'from-rose-600 to-pink-700',
-  ja: 'from-red-600 to-orange-600',
-  hi: 'from-orange-500 to-amber-600',
-  ta: 'from-violet-600 to-purple-700',
-  te: 'from-emerald-600 to-teal-700',
-  ml: 'from-cyan-600 to-sky-700',
-  kn: 'from-yellow-500 to-orange-600',
-  es: 'from-red-700 to-rose-800',
-  fr: 'from-blue-700 to-violet-700',
-  zh: 'from-red-800 to-rose-900',
-};
-
 export default function LanguagesPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="min-h-screen bg-cine-bg text-cine-text-primary pb-20">
+      <Navbar />
+
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-12">
 
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-          <h1 className="text-4xl md:text-5xl font-black mb-2">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-              Browse by Language
-            </span>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cine-accent mb-2">Regional modules</p>
+          <h1 className="text-3xl sm:text-4xl font-bold uppercase font-heading tracking-wide text-cine-text-primary mb-3">
+            Browse by Language
           </h1>
-          <p className="text-slate-400 text-lg">
-            Discover cinema from around the world. Select a language to explore movies, TV series, and actors.
+          <p className="text-xs text-cine-text-secondary font-semibold max-w-xl">
+            Explore regional cinema from around the world. Select a language module to study specific films, series, and stars.
           </p>
         </motion.div>
 
         {/* Language cards grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {SUPPORTED_LANGUAGES.map((lang, i) => {
-            const gradient = GRADIENTS[lang.code] ?? 'from-slate-600 to-slate-700';
             const highlights = CINEMA_HIGHLIGHTS[lang.code] ?? [];
 
             return (
               <motion.button
                 key={lang.code}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                transition={{ delay: i * 0.04 }}
+                whileHover={{ y: -2 }}
                 onClick={() => navigate(`/languages/${lang.code}`)}
-                className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-6 text-left shadow-xl group`}
+                className="relative overflow-hidden rounded border border-cine-border bg-cine-surface p-6 text-left shadow-xl hover:border-cine-accent transition-all duration-300 group"
               >
-                {/* Subtle pattern overlay */}
-                <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_top_right,_white_1px,_transparent_1px)] bg-[length:20px_20px]" />
+                <div className="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="text-3xl p-2 bg-cine-bg border border-cine-border rounded group-hover:scale-105 transition-transform duration-300">{lang.flag}</span>
+                      <div>
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-cine-text-primary group-hover:text-cine-accent transition-colors">{lang.label}</h2>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-cine-text-muted mt-0.5">{lang.hero}</p>
+                      </div>
+                    </div>
 
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-4xl">{lang.flag}</span>
-                    <div>
-                      <h2 className="text-xl font-black text-white">{lang.label}</h2>
-                      <p className="text-white/60 text-sm font-medium">{lang.hero}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-4">
+                      {highlights.map((h) => (
+                        <span key={h} className="text-[9px] font-bold uppercase tracking-widest bg-cine-bg border border-cine-border text-cine-text-secondary px-2.5 py-1 rounded">
+                          {h}
+                        </span>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5 mt-4">
-                    {highlights.map((h) => (
-                      <span key={h} className="text-xs bg-white/15 text-white/90 px-2.5 py-1 rounded-full font-medium backdrop-blur-sm">
-                        {h}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-5 flex items-center gap-1 text-white/80 text-sm font-semibold group-hover:text-white transition-colors">
+                  <div className="mt-6 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-cine-accent group-hover:underline transition-all">
                     Explore {lang.label} Cinema
-                    <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <svg className="w-3.5 h-3.5 ml-1 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
                 </div>

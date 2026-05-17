@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import MediaCard from '../common/MediaCard';
+import { Film } from 'lucide-react';
 import SkeletonCard from '../common/SkeletonCard';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { useAddWatched, useRemoveWatched } from '../../hooks/useWatched';
@@ -108,9 +109,9 @@ export default function InfiniteGrid({
 
   if (!items.length) {
     return (
-      <div className="text-center py-16 text-slate-500">
-        <p className="text-4xl mb-3">🎬</p>
-        <p>No results found</p>
+      <div className="text-center py-16 text-cine-text-muted">
+        <Film className="w-10 h-10 text-cine-text-muted/40 stroke-[1.25] mx-auto mb-4" />
+        <p className="text-xs uppercase font-bold tracking-wider">No results found</p>
       </div>
     );
   }
@@ -144,14 +145,14 @@ export default function InfiniteGrid({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center gap-3 text-slate-400"
+            className="flex items-center gap-3 text-cine-text-secondary"
           >
-            <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm">Loading more...</span>
+            <div className="w-4 h-4 border border-cine-accent border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs uppercase font-bold tracking-wider">Loading more...</span>
           </motion.div>
         )}
         {!hasNextPage && items.length > 0 && (
-          <p className="text-slate-600 text-sm">You've reached the end</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-cine-text-muted">End of catalog reached</p>
         )}
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Eye, Check, Bookmark, Mic, Star } from 'lucide-react';
 
 interface MediaCardProps {
   media: {
@@ -38,78 +39,91 @@ export default function MediaCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04 }}
-      className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700/50 hover:border-purple-500/60 transition-all group cursor-pointer hover:shadow-lg hover:shadow-purple-500/10 relative"
+      transition={{ delay: index * 0.03 }}
+      className="bg-cine-surface rounded overflow-hidden border border-cine-border hover:border-cine-accent transition-all duration-300 group cursor-pointer relative"
     >
-      <div className="relative" onClick={onClick}>
+      <div className="relative aspect-[2/3] bg-cine-bg overflow-hidden" onClick={onClick}>
         {poster ? (
           <img
             src={`https://image.tmdb.org/t/p/w500${poster}`}
             alt={title}
-            className="w-full h-auto object-cover group-hover:opacity-80 transition-opacity"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
           />
         ) : (
-          <div className="w-full aspect-[2/3] bg-slate-700 flex items-center justify-center text-slate-500 text-sm">
+          <div className="w-full h-full flex items-center justify-center text-cine-text-muted text-xs uppercase font-bold bg-cine-bg">
             No Poster
           </div>
         )}
 
-        {/* Action buttons overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2 pb-3">
-          {/* Watched Toggle */}
-          <button
-            onClick={(e) => { e.stopPropagation(); isWatched ? onRemoveWatched?.() : onAddWatched?.(); }}
-            className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-lg transition-all hover:scale-110 backdrop-blur-sm shadow-md ${isWatched ? 'bg-slate-500/90 hover:bg-red-500/90' : 'bg-emerald-500/90 hover:bg-emerald-400'}`}
-            title={isWatched ? "Remove from Watched" : "Add to Watched"}
-          >
-            {isWatched ? '✓' : '👁️'}
-          </button>
-          
-          {/* Watchlist Toggle */}
-          <button
-            onClick={(e) => { e.stopPropagation(); inWatchlist ? onRemoveWatchlist?.() : onAddWatchlist?.(); }}
-            className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-lg transition-all hover:scale-110 backdrop-blur-sm shadow-md ${inWatchlist ? 'bg-amber-500/90 hover:bg-amber-400' : 'bg-slate-600/90 hover:bg-slate-500'}`}
-            title={inWatchlist ? "Remove from Watchlist" : "Save for Later"}
-          >
-            🔖
-          </button>
-
-          {/* Mic */}
+        {/* High-end minimalist action overlay */}
+        <div className="absolute inset-0 bg-cine-bg/75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 gap-2">
           {onTalk && (
             <button
               onClick={(e) => { e.stopPropagation(); onTalk(); }}
-              className="w-9 h-9 rounded-full bg-purple-500/90 hover:bg-purple-400 flex items-center justify-center text-white text-sm transition-all hover:scale-110 backdrop-blur-sm shadow-md"
-              title="Talk About"
+              className="w-full py-1.5 bg-cine-accent text-cine-bg text-[9px] uppercase font-bold tracking-widest hover:bg-opacity-95 rounded transition-all flex items-center justify-center gap-1.5"
+              title="Speak Critique"
             >
-              🎤
+              <Mic className="w-3.5 h-3.5 stroke-[2]" />
+              Talk Critique
             </button>
           )}
+          
+          <div className="flex gap-2 w-full">
+            {/* Watched Toggle */}
+            <button
+              onClick={(e) => { e.stopPropagation(); isWatched ? onRemoveWatched?.() : onAddWatched?.(); }}
+              className={`flex-1 py-1.5 rounded text-[9px] uppercase font-bold tracking-wider transition-all border flex items-center justify-center gap-1 ${
+                isWatched 
+                  ? 'bg-cine-bg border-cine-border text-red-400 hover:bg-cine-card' 
+                  : 'bg-cine-surface border-cine-border text-cine-text-primary hover:border-cine-accent'
+              }`}
+              title={isWatched ? "Remove Watched" : "Mark Watched"}
+            >
+              {isWatched ? <Check className="w-3.5 h-3.5 stroke-[2]" /> : <Eye className="w-3.5 h-3.5 stroke-[1.75]" />}
+              {isWatched ? 'Watched' : 'Log'}
+            </button>
+            
+            {/* Watchlist Toggle */}
+            <button
+              onClick={(e) => { e.stopPropagation(); inWatchlist ? onRemoveWatchlist?.() : onAddWatchlist?.(); }}
+              className={`py-1.5 px-3 rounded transition-all border flex items-center justify-center ${
+                inWatchlist 
+                  ? 'bg-cine-accent/10 border-cine-accent/30 text-cine-accent' 
+                  : 'bg-cine-surface border-cine-border text-cine-text-secondary hover:border-cine-accent'
+              }`}
+              title={inWatchlist ? "Remove Saved" : "Save for Later"}
+            >
+              <Bookmark className={`w-3.5 h-3.5 stroke-[1.75] ${inWatchlist ? 'fill-cine-accent' : ''}`} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Watched badge */}
+      {/* Top right badges - minimal letterboxd style */}
       {isWatched && (
-        <div className="absolute top-2 right-2 bg-emerald-500/90 backdrop-blur-sm rounded-full w-6 h-6 flex items-center justify-center text-white text-xs font-bold shadow-md">
-          👁️
+        <div className="absolute top-2.5 right-2.5 bg-green-500 rounded-full w-5 h-5 flex items-center justify-center text-cine-bg shadow-md">
+          <Check className="w-3 h-3 stroke-[2.5]" />
         </div>
       )}
       
-      {/* Watchlist badge */}
       {!isWatched && inWatchlist && (
-        <div className="absolute top-2 right-2 bg-amber-500/90 backdrop-blur-sm rounded-full w-6 h-6 flex items-center justify-center text-white text-xs font-bold shadow-md">
-          🔖
+        <div className="absolute top-2.5 right-2.5 bg-cine-accent rounded-full w-5 h-5 flex items-center justify-center text-cine-bg shadow-md">
+          <Bookmark className="w-3 h-3 stroke-[2] fill-cine-bg" />
         </div>
       )}
 
       <div className="p-3" onClick={onClick}>
-        <h3 className="font-bold text-sm mb-1 truncate text-white">{title}</h3>
-        <div className="flex justify-between items-center text-xs text-slate-400">
+        <h3 className="font-bold text-xs uppercase tracking-wider mb-1 truncate text-cine-text-primary group-hover:text-cine-accent transition-colors">
+          {title}
+        </h3>
+        <div className="flex justify-between items-center text-[10px] uppercase font-bold text-cine-text-muted mt-1">
           <span>{year}</span>
-          <span className="bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded font-medium">
-            ★ {rating?.toFixed(1)}
+          <span className="text-cine-accent font-bold flex items-center gap-1">
+            <Star className="w-3.5 h-3.5 fill-cine-accent text-cine-accent stroke-none" />
+            {rating?.toFixed(1)}
           </span>
         </div>
       </div>

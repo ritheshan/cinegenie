@@ -23,35 +23,44 @@ interface Ball {
   radius: number;
   img: HTMLImageElement;
   loaded: boolean;
+  isForeground: boolean;
 }
 
-export default function MovieScrollingWall() {
+interface MovieScrollingWallProps {
+  children?: React.ReactNode;
+}
+
+export default function MovieScrollingWall({ children }: MovieScrollingWallProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const bgCanvasRef = useRef<HTMLCanvasElement>(null);
+  const fgCanvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef<{ x: number | null; y: number | null }>({ x: null, y: null });
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const bgCanvas = bgCanvasRef.current;
+    const fgCanvas = fgCanvasRef.current;
+    if (!bgCanvas || !fgCanvas) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const bgCtx = bgCanvas.getContext('2d');
+    const fgCtx = fgCanvas.getContext('2d');
+    if (!bgCtx || !fgCtx) return;
 
     let animationFrameId: number;
     let balls: Ball[] = [];
 
     // Preload all poster images
-    const loadedImages = MOVIE_POSTERS.map((url) => {
+    const loadedImages = MOVIE_POSTERS.map((url, i) => {
       const img = new Image();
       img.src = url;
       const ball: Ball = {
         x: 0,
         y: 0,
-        vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 2,
-        radius: Math.floor(Math.random() * 40) + 75, // Radius between 75px and 115px (Diameter 150px - 230px)
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 1.5,
+        radius: Math.floor(Math.random() * 20) + 60, // Radius between 60px and 80px
         img,
         loaded: false,
+        isForeground: i % 2 === 0, // Split half foreground, half background
       };
 
       img.onload = () => {
@@ -66,16 +75,18 @@ export default function MovieScrollingWall() {
     // Set canvas dimensions
     const resizeCanvas = () => {
       const container = containerRef.current;
-      if (container && canvas) {
-        canvas.width = container.offsetWidth;
-        canvas.height = container.offsetHeight;
+      if (container && bgCanvas && fgCanvas) {
+        bgCanvas.width = container.offsetWidth;
+        bgCanvas.height = container.offsetHeight;
+        fgCanvas.width = container.offsetWidth;
+        fgCanvas.height = container.offsetHeight;
 
         // Spread balls inside canvas bounds initially
         balls.forEach((ball, index) => {
-          const col = index % 3;
-          const row = Math.floor(index / 3);
-          ball.x = ball.radius + col * (canvas.width / 3) + Math.random() * 50;
-          ball.y = ball.radius + row * (canvas.height / 4) + Math.random() * 50;
+          const col = index % 4;
+          const row = Math.floor(index / 4);
+          ball.x = ball.radius + col * (bgCanvas.width / 4) + Math.random() * 40;
+          ball.y = ball.radius + row * (bgCanvas.height / 3) + Math.random() * 40;
         });
       }
     };
@@ -126,41 +137,45 @@ export default function MovieScrollingWall() {
 
     // Primary Physics and Rendering loop
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      fgCtx.clearRect(0, 0, fgCanvas.width, fgCanvas.height);
 
-      // Draw dynamic deep slate/indigo backdrop radial grid
-      ctx.fillStyle = '#020617';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Draw base dark background on bgCtx
+      bgCtx.fillStyle = '#0F0F10';
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 
-      // Soft purple glow behind the balls
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        10,
-        canvas.width / 2,
-        canvas.height / 2,
-        canvas.width
+      // Soft amber/gold subtle center glow on bgCtx
+      const gradient = bgCtx.createRadialGradient(
+        bgCanvas.width / 2,
+        bgCanvas.height / 2,
+        20,
+        bgCanvas.width / 2,
+        bgCanvas.height / 2,
+        bgCanvas.width
       );
-      gradient.addColorStop(0, '#0f172a');
-      gradient.addColorStop(1, '#020617');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#161618');
+      gradient.addColorStop(1, '#0F0F10');
+      bgCtx.fillStyle = gradient;
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
 
       balls.forEach((ball, i) => {
         // 1. Resolve wall collisions
+        const width = bgCanvas.width;
+        const height = bgCanvas.height;
+
         if (ball.x - ball.radius < 0) {
           ball.x = ball.radius;
           ball.vx = -ball.vx;
-        } else if (ball.x + ball.radius > canvas.width) {
-          ball.x = canvas.width - ball.radius;
+        } else if (ball.x + ball.radius > width) {
+          ball.x = width - ball.radius;
           ball.vx = -ball.vx;
         }
 
         if (ball.y - ball.radius < 0) {
           ball.y = ball.radius;
           ball.vy = -ball.vy;
-        } else if (ball.y + ball.radius > canvas.height) {
-          ball.y = canvas.height - ball.radius;
+        } else if (ball.y + ball.radius > height) {
+          ball.y = height - ball.radius;
           ball.vy = -ball.vy;
         }
 
@@ -169,7 +184,6 @@ export default function MovieScrollingWall() {
           const other = balls[j];
           const dist = Math.hypot(other.x - ball.x, other.y - ball.y);
           if (dist < ball.radius + other.radius) {
-            // Push apart slightly to prevent overlapping
             const overlap = ball.radius + other.radius - dist;
             const dx = (other.x - ball.x) / dist;
             const dy = (other.y - ball.y) / dist;
@@ -186,10 +200,10 @@ export default function MovieScrollingWall() {
         const mouse = mouseRef.current;
         if (mouse.x !== null && mouse.y !== null) {
           const distToMouse = Math.hypot(ball.x - mouse.x, ball.y - mouse.y);
-          if (distToMouse < 240) {
-            const force = (240 - distToMouse) / 240;
+          if (distToMouse < 220) {
+            const force = (220 - distToMouse) / 220;
             const angle = Math.atan2(ball.y - mouse.y, ball.x - mouse.x);
-            const strength = 1.5;
+            const strength = 1.2;
             ball.vx += Math.cos(angle) * force * strength;
             ball.vy += Math.sin(angle) * force * strength;
           }
@@ -197,35 +211,34 @@ export default function MovieScrollingWall() {
 
         // Speed limiters and gentle friction
         let speed = Math.hypot(ball.vx, ball.vy);
-        const maxSpeed = 6;
+        const maxSpeed = 4;
         if (speed > maxSpeed) {
           ball.vx = (ball.vx / speed) * maxSpeed;
           ball.vy = (ball.vy / speed) * maxSpeed;
         }
 
-        const baseSpeed = 1.0;
+        const baseSpeed = 0.8;
         if (speed < baseSpeed && speed > 0.05) {
-          // Gently push it back to base speed so they keep floating
           ball.vx = (ball.vx / speed) * baseSpeed;
           ball.vy = (ball.vy / speed) * baseSpeed;
         }
 
-        // Apply friction to slow down high speed impacts
-        ball.vx *= 0.985;
-        ball.vy *= 0.985;
+        ball.vx *= 0.99;
+        ball.vy *= 0.99;
 
         // 4. Update Position
         ball.x += ball.vx;
         ball.y += ball.vy;
 
-        // 5. Draw circular clipped poster
+        // 5. Draw to appropriate canvas
+        const ctx = ball.isForeground ? fgCtx : bgCtx;
+
         if (ball.loaded) {
           ctx.save();
           ctx.beginPath();
           ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
           ctx.clip();
 
-          // Draw image centered in the circle
           ctx.drawImage(
             ball.img,
             ball.x - ball.radius,
@@ -235,31 +248,22 @@ export default function MovieScrollingWall() {
           );
           ctx.restore();
 
-          // Premium glowing glass border
+          // Premium thin gold/warm border
           ctx.save();
           ctx.beginPath();
-          ctx.arc(ball.x, ball.y, ball.radius - 1, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-          ctx.lineWidth = 3;
-          ctx.shadowColor = 'rgba(139, 92, 246, 0.25)'; // Purple shadow
-          ctx.shadowBlur = 15;
+          ctx.arc(ball.x, ball.y, ball.radius - 0.5, 0, Math.PI * 2);
+          ctx.strokeStyle = ball.isForeground 
+            ? 'rgba(244, 185, 66, 0.25)' 
+            : 'rgba(255, 255, 255, 0.08)';
+          ctx.lineWidth = 2;
+          if (ball.isForeground) {
+            ctx.shadowColor = 'rgba(244, 185, 66, 0.15)';
+            ctx.shadowBlur = 10;
+          }
           ctx.stroke();
           ctx.restore();
         }
       });
-
-      // Dark overlays to merge beautifully with the Auth Page sides
-      const leftGrad = ctx.createLinearGradient(0, 0, 150, 0);
-      leftGrad.addColorStop(0, 'rgba(2, 6, 23, 0.95)');
-      leftGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
-      ctx.fillStyle = leftGrad;
-      ctx.fillRect(0, 0, 150, canvas.height);
-
-      const rightGrad = ctx.createLinearGradient(canvas.width, 0, canvas.width - 150, 0);
-      rightGrad.addColorStop(0, 'rgba(2, 6, 23, 0.95)');
-      rightGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
-      ctx.fillStyle = rightGrad;
-      ctx.fillRect(canvas.width - 150, 0, 150, canvas.height);
 
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -272,7 +276,6 @@ export default function MovieScrollingWall() {
     };
   }, []);
 
-  // Track Mouse movement relative to container
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const container = containerRef.current;
     if (container) {
@@ -293,9 +296,18 @@ export default function MovieScrollingWall() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full h-full overflow-hidden select-none cursor-default bg-slate-950"
+      className="relative w-full min-h-screen overflow-hidden select-none cursor-default bg-cine-bg"
     >
-      <canvas ref={canvasRef} className="absolute inset-0 block w-full h-full" />
+      {/* Background Canvas */}
+      <canvas ref={bgCanvasRef} className="absolute inset-0 block w-full h-full z-0" />
+      
+      {/* Content Container (Card) */}
+      <div className="relative z-10 min-h-screen w-full flex items-center justify-center">
+        {children}
+      </div>
+
+      {/* Foreground Canvas (Floating on top) */}
+      <canvas ref={fgCanvasRef} className="absolute inset-0 block w-full h-full z-20 pointer-events-none" />
     </div>
   );
 }

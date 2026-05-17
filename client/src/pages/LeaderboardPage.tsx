@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { leaderboardApi } from '../api/leaderboard.api';
+import Navbar from '../components/common/Navbar';
+import { Trophy, Clapperboard, MonitorPlay, Mic } from 'lucide-react';
 
 type LeaderboardTab = 'movie' | 'tv' | 'communication';
 
-const TABS: { id: LeaderboardTab; label: string; icon: string; description: string }[] = [
-  { id: 'movie', label: 'Top Cinephiles', icon: '🎬', description: 'Most movies watched' },
-  { id: 'tv', label: 'Binge Watchers', icon: '📺', description: 'Most series watched' },
-  { id: 'communication', label: 'Master Orators', icon: '🎤', description: 'Highest average AI speaking score' },
+const TABS = [
+  { id: 'movie' as const, label: 'Top Cinephiles', icon: Clapperboard, description: 'Movies Logged' },
+  { id: 'tv' as const, label: 'Binge Watchers', icon: MonitorPlay, description: 'Series Logged' },
+  { id: 'communication' as const, label: 'Master Orators', icon: Mic, description: 'AI Oral Score' },
 ];
 
 export default function LeaderboardPage() {
@@ -39,87 +41,93 @@ export default function LeaderboardPage() {
   if (activeTab === 'movie') {
     currentData = watchedMovies || [];
     isLoading = loadMovies;
-    valueLabel = 'Movies Watched';
+    valueLabel = 'Movies Logged';
   } else if (activeTab === 'tv') {
     currentData = watchedTv || [];
     isLoading = loadTv;
-    valueLabel = 'Series Watched';
+    valueLabel = 'Series Logged';
   } else if (activeTab === 'communication') {
     currentData = communicationStats || [];
     isLoading = loadComm;
-    valueLabel = 'Avg. Score';
+    valueLabel = 'Avg. Oral Score';
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 pb-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="min-h-screen bg-cine-bg text-cine-text-primary pb-20">
+      <Navbar />
+
+      <div className="max-w-4xl mx-auto px-6 sm:px-8 py-12">
         
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-3">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">
-              Global Leaderboard
-            </span>
-            👑
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cine-accent mb-2">Global Ranking</p>
+          <h1 className="text-3xl sm:text-4xl font-bold uppercase font-heading tracking-wide text-cine-text-primary mb-3">
+            Hall of Fame
           </h1>
-          <p className="text-slate-400 text-lg">See how you stack up against other users</p>
+          <p className="text-xs text-cine-text-secondary font-semibold max-w-md mx-auto leading-relaxed">
+            See how your logged film collections & spoken evaluations stack up against our global community
+          </p>
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-10 bg-slate-800/50 p-2 rounded-2xl border border-slate-700/50">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex flex-col items-center gap-1 p-4 rounded-xl text-sm font-semibold transition-all ${
-                activeTab === tab.id
-                  ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/25 scale-[1.02]'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-              }`}
-            >
-              <span className="text-2xl mb-1">{tab.icon}</span>
-              <span className="text-base">{tab.label}</span>
-              <span className={`text-xs ${activeTab === tab.id ? 'text-purple-200' : 'text-slate-500'}`}>
-                {tab.description}
-              </span>
-            </button>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10 bg-cine-surface p-2 rounded border border-cine-border">
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 flex flex-col items-center gap-1.5 p-4 rounded text-xs uppercase font-bold tracking-wider transition-all border ${
+                  isActive
+                    ? 'bg-cine-accent text-cine-bg border-cine-accent'
+                    : 'text-cine-text-secondary hover:text-cine-text-primary hover:bg-cine-card border-transparent bg-transparent'
+                }`}
+              >
+                <Icon className={`w-5 h-5 stroke-[1.75] ${isActive ? 'text-cine-bg' : 'text-cine-accent'}`} />
+                <span className="text-xs font-bold uppercase tracking-wider">{tab.label}</span>
+                <span className={`text-[9px] font-bold uppercase tracking-widest mt-1 ${isActive ? 'text-cine-bg opacity-75' : 'text-cine-text-muted'}`}>
+                  {tab.description}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* List */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl"
+            className="bg-cine-surface border border-cine-border rounded overflow-hidden shadow-xl"
           >
             {/* Table Header */}
-            <div className="flex items-center px-6 py-4 bg-slate-800/80 border-b border-slate-700 text-sm font-bold text-slate-400 uppercase tracking-wider">
+            <div className="flex items-center px-6 py-4 bg-cine-bg/50 border-b border-cine-border text-[9px] font-bold text-cine-text-muted uppercase tracking-[0.2em]">
               <div className="w-16 text-center">Rank</div>
-              <div className="flex-1 pl-4">User</div>
+              <div className="flex-1 pl-4">Cinephile</div>
               <div className="w-32 text-right">{valueLabel}</div>
             </div>
 
             {/* List Body */}
-            <div className="divide-y divide-slate-700/50">
+            <div className="divide-y divide-cine-border">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex items-center px-6 py-5 animate-pulse">
-                    <div className="w-16 flex justify-center"><div className="w-8 h-8 bg-slate-700 rounded-full"></div></div>
+                  <div key={i} className="flex items-center px-6 py-5 animate-pulse bg-cine-bg/25">
+                    <div className="w-16 flex justify-center"><div className="w-6 h-6 bg-cine-surface rounded-full"></div></div>
                     <div className="flex-1 pl-4 flex items-center gap-4">
-                      <div className="w-10 h-10 bg-slate-700 rounded-full"></div>
-                      <div className="w-32 h-4 bg-slate-700 rounded"></div>
+                      <div className="w-8 h-8 bg-cine-surface rounded-full"></div>
+                      <div className="w-24 h-3 bg-cine-surface rounded"></div>
                     </div>
-                    <div className="w-20 h-6 bg-slate-700 rounded ml-auto"></div>
+                    <div className="w-16 h-5 bg-cine-surface rounded ml-auto"></div>
                   </div>
                 ))
               ) : currentData.length === 0 ? (
-                <div className="text-center py-16 text-slate-400">
-                  <div className="text-4xl mb-4">👻</div>
-                  No data available yet
+                <div className="text-center py-16 text-cine-text-muted text-xs uppercase font-bold tracking-wider flex flex-col items-center justify-center">
+                  <Trophy className="w-8 h-8 text-cine-text-muted/65 mb-4 stroke-[1.25]" />
+                  <span>No active rankings recorded</span>
                 </div>
               ) : (
                 currentData.map((item, i) => {
@@ -129,34 +137,33 @@ export default function LeaderboardPage() {
                   return (
                     <div 
                       key={item.userId || item._id} 
-                      className={`flex items-center px-6 py-4 transition-colors hover:bg-slate-700/30 ${i === 0 ? 'bg-amber-500/5' : ''}`}
+                      className={`flex items-center px-6 py-4 transition-colors hover:bg-cine-card/45 ${i === 0 ? 'bg-cine-accent/5' : ''}`}
                     >
-                      {/* Rank */}
-                      <div className="w-16 flex justify-center">
-                        {i === 0 ? <span className="text-3xl" title="1st Place">🥇</span> :
-                         i === 1 ? <span className="text-3xl" title="2nd Place">🥈</span> :
-                         i === 2 ? <span className="text-3xl" title="3rd Place">🥉</span> :
-                         <span className="text-lg font-bold text-slate-500">#{i + 1}</span>}
+                      <div className="w-16 flex justify-center items-center">
+                        {i === 0 ? <span title="Gold Medallion"><Trophy className="w-5.5 h-5.5 text-cine-accent fill-cine-accent/10 stroke-[1.75]" /></span> :
+                         i === 1 ? <span title="Silver Medallion"><Trophy className="w-5.5 h-5.5 text-slate-400 fill-slate-400/5 stroke-[1.75]" /></span> :
+                         i === 2 ? <span title="Bronze Medallion"><Trophy className="w-5.5 h-5.5 text-amber-700 fill-amber-700/5 stroke-[1.75]" /></span> :
+                         <span className="text-xs font-bold text-cine-text-muted">#{i + 1}</span>}
                       </div>
 
                       {/* User Info */}
-                      <div className="flex-1 pl-4 flex items-center gap-4">
+                      <div className="flex-1 pl-4 flex items-center gap-3">
                         {item.avatar ? (
-                          <img src={item.avatar} alt={item.name} className="w-10 h-10 rounded-full bg-slate-700 border-2 border-slate-600" />
+                          <img src={item.avatar} alt={item.name} className="w-8 h-8 rounded-full bg-cine-bg border border-cine-border" />
                         ) : (
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${isTop3 ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-300'}`}>
+                          <div className={`w-8 h-8 rounded flex items-center justify-center font-bold text-[10px] uppercase tracking-wider ${isTop3 ? 'bg-cine-accent text-cine-bg' : 'bg-cine-bg border border-cine-border text-cine-text-secondary'}`}>
                             {item.name?.substring(0, 2).toUpperCase() || 'U'}
                           </div>
                         )}
-                        <span className={`font-bold ${isTop3 ? 'text-white text-lg' : 'text-slate-300'}`}>
-                          {item.name || 'Anonymous User'}
+                        <span className={`text-xs font-bold uppercase tracking-wider ${isTop3 ? 'text-cine-text-primary' : 'text-cine-text-secondary'}`}>
+                          {item.name || 'Anonymous Cinephile'}
                         </span>
                       </div>
 
                       {/* Score */}
                       <div className="w-32 text-right">
-                        <span className={`inline-block px-3 py-1 rounded-full font-bold text-sm ${
-                          isTop3 ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-slate-700 text-slate-300'
+                        <span className={`inline-block px-3 py-1 rounded text-[10px] uppercase font-bold tracking-wider ${
+                          isTop3 ? 'bg-cine-accent/10 border border-cine-accent/30 text-cine-accent' : 'bg-cine-bg border border-cine-border text-cine-text-secondary'
                         }`}>
                           {value}
                         </span>
