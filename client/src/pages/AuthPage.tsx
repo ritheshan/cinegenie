@@ -30,7 +30,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -82,7 +82,13 @@ export default function AuthPage({ mode }: AuthPageProps) {
 
   const handleGoogleLogin = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+      let apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+      if (apiUrl.endsWith('/')) {
+        apiUrl = apiUrl.slice(0, -1);
+      }
+      if (!apiUrl.endsWith('/api')) {
+        apiUrl = `${apiUrl}/api`;
+      }
       const response = await fetch(`${apiUrl}/auth/google-url`);
       const data = await response.json();
       if (data.url) {
@@ -100,11 +106,10 @@ export default function AuthPage({ mode }: AuthPageProps) {
       <motion.div
         layout="position"
         transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-        className={`w-full lg:w-[45%] xl:w-[40%] flex flex-col justify-center px-6 sm:px-12 py-10 z-20 bg-slate-900/90 backdrop-blur-md border-slate-800 ${
-          isLogin ? 'order-1 border-r' : 'order-2 border-l'
-        }`}
+        className={`w-full lg:w-[45%] xl:w-[40%] flex flex-col justify-center px-4 sm:px-6 py-10 z-20 bg-transparent ${isLogin ? 'order-1' : 'order-2'
+          }`}
       >
-        <div className="max-w-md w-full mx-auto">
+        <div className="max-w-md w-full mx-auto bg-slate-900/40 backdrop-blur-3xl border border-white/10 p-8 sm:p-10 rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.6)]">
           {/* Logo */}
           <div className="flex items-center gap-2 mb-8 justify-center lg:justify-start">
             <span className="text-3xl">🎥</span>
@@ -201,11 +206,10 @@ export default function AuthPage({ mode }: AuthPageProps) {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-4 text-white font-bold rounded-xl transition-all shadow-lg transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 ${
-                isLogin
-                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-500/10'
-                  : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-500/10'
-              }`}
+              className={`w-full py-4 text-white font-bold rounded-xl transition-all shadow-lg transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 ${isLogin
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-purple-500/10'
+                : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 shadow-cyan-500/10'
+                }`}
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -260,9 +264,8 @@ export default function AuthPage({ mode }: AuthPageProps) {
       <motion.div
         layout="position"
         transition={{ type: 'spring', stiffness: 120, damping: 20 }}
-        className={`hidden lg:block lg:w-[55%] xl:w-[60%] h-screen relative overflow-hidden ${
-          isLogin ? 'order-2' : 'order-1'
-        }`}
+        className={`hidden lg:block lg:w-[55%] xl:w-[60%] h-screen relative overflow-hidden ${isLogin ? 'order-2' : 'order-1'
+          }`}
       >
         <MovieScrollingWall />
       </motion.div>
