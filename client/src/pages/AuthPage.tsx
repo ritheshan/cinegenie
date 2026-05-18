@@ -85,7 +85,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
       if (!apiUrl.endsWith('/api')) {
         apiUrl = `${apiUrl}/api`;
       }
-      const response = await fetch(`${apiUrl}/auth/google-url`);
+      const response = await fetch(`${apiUrl}/auth/google-url?origin=${encodeURIComponent(window.location.origin)}`);
       const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
