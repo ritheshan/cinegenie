@@ -56,7 +56,7 @@ export class AuthService {
     return { user: userObj, token };
   }
 
-  getGoogleAuthUrl(): string {
+  getGoogleAuthUrl(origin?: string): string {
     const { google } = require('googleapis');
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
@@ -71,6 +71,7 @@ export class AuthService {
         'https://www.googleapis.com/auth/userinfo.email',
       ],
       prompt: 'consent',
+      state: origin,
     });
   }
 
