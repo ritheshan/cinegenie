@@ -43,7 +43,8 @@ export class AuthController {
 
   async getGoogleAuthUrl(req: Request, res: Response) {
     try {
-      const url = authService.getGoogleAuthUrl();
+      const origin = req.query.origin as string
+      const url = authService.getGoogleAuthUrl(origin);
       res.json({ success: true, url });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message || 'Server Error' });
@@ -64,7 +65,7 @@ export class AuthController {
   }
 
   async googleCallbackGet(req: Request, res: Response) {
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = req.query.state as string || process.env.CLIENT_URL || 'http://localhost:5173';
     try {
       const code = req.query.code as string;
       if (!code) {
