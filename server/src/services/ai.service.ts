@@ -18,22 +18,53 @@ export class AiService {
     }
 
     const prompt = `
-      You are an expert English language tutor analyzing a user's spoken movie review transcript.
-      Analyze the following transcript for grammar, fluency, vocabulary, and overall confidence.
-      
-      Transcript: "${transcript}"
-      
-      Provide the output EXACTLY in the following JSON format without any markdown blocks or backticks. Just raw JSON:
-      {
-        "grammarScore": number (0-100),
-        "fluencyScore": number (0-100),
-        "vocabularyScore": number (0-100),
-        "confidenceScore": number (0-100),
-        "mistakes": ["List of specific grammatical or structural mistakes made"],
-        "suggestions": ["List of actionable tips for improvement"],
-        "improvedVersion": "A polished, native-sounding version of the transcript"
-      }
-    `;
+You are an expert English language tutor analyzing a user's spoken movie review transcript.
+
+Analyze the transcript sentence by sentence.
+
+Transcript:
+"${transcript}"
+
+Rules:
+1. Break the transcript into individual sentences.
+2. For EVERY sentence that contains errors, provide:
+   - originalSentence (exact user sentence)
+   - correctedSentence
+   - explanation
+   - mistakeType
+3. If a sentence is already correct, still include it and mark mistakeType as "None".
+4. Preserve the user's intended meaning.
+5. Corrections should sound natural and native-like.
+6. Provide detailed feedback for learning purposes.
+
+Return ONLY valid JSON in the following format:
+
+{
+  "grammarScore": 0,
+  "fluencyScore": 0,
+  "vocabularyScore": 0,
+  "confidenceScore": 0,
+
+  "sentenceCorrections": [
+    {
+      "originalSentence": "",
+      "correctedSentence": "",
+      "mistakeType": "",
+      "explanation": ""
+    }
+  ],
+
+  "mistakes": [
+    ""
+  ],
+
+  "suggestions": [
+    ""
+  ],
+
+  "improvedVersion": ""
+}
+`;
 
     try {
       const response = await groqClient.chat.completions.create({
